@@ -2,9 +2,13 @@ import Map from './components/Map';
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col items-center p-4">
-      <h1 className="text-3xl font-bold mb-4">City Mobility Explorer</h1>
-      <Map />
+    <div className="h-screen w-screen flex flex-col bg-slate-900 overflow-hidden">
+      <header className="p-4 shadow-lg bg-white z-10">
+        <h1 className="text-2xl font-bold text-slate-800">City Mobility Explorer</h1>
+      </header>
+      <main className="flex-1 relative">
+        <Map />
+      </main>
     </div>
   );
 }
