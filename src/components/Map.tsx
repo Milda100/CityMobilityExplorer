@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import maplibregl from 'maplibre-gl';
 import { useStopAreas } from '../hooks/useStopAreas';
 import { ovStopsToGeoJSON } from '../utils/ovStopsToGeoJSON';
@@ -30,12 +30,11 @@ function Map() {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const { data, isLoading, error } = useStopAreas();
-  const [allStopsGeoJSON, setAllStopsGeoJSON] = useState<GeoJSON.FeatureCollection | null>(null);
 
-  // Convert fetched data to GeoJSON once
-  useEffect(() => {
-    if (!data) return;
-    setAllStopsGeoJSON(ovStopsToGeoJSON(data));
+  // Memoize the conversion to GeoJSON
+  const allStopsGeoJSON = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point> | null>(() => {
+    if (!data) return null;
+    return ovStopsToGeoJSON(data);
   }, [data]);
 
 
@@ -49,6 +48,16 @@ function Map() {
       center: [4.9041, 52.3676],
       zoom: 12,
     });
+
+    //user's current location if permission granted
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          map.setCenter([position.coords.longitude, position.coords.latitude]);
+          map.setZoom(12);
+        }
+      );
+    }
     
 
     map.on('load', () => {
@@ -99,7 +108,6 @@ function Map() {
       const updateVisibleStops = () => {
         const bounds = map.getBounds();
         const visibleFeatures = allStopsGeoJSON.features.filter(f =>
-          f.geometry.type === 'Point' &&
           bounds.contains(f.geometry.coordinates as [number, number])
         );
 
@@ -125,7 +133,7 @@ function Map() {
     <div className="relative w-full h-full">
       {isLoading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-sm font-semibold">
-          Loading Amsterdam stops…
+          Loading transportation stops…
         </div>
       )}
       {error && (
