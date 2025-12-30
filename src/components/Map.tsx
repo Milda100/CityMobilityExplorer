@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
-// import { transportStops } from '../data/mockStops';
-// import { stopsToGeoJSON } from '../utils/stopsToGeoJSON';
-
 import { useStopAreas } from '../hooks/useStopAreas';
 import { ovStopsToGeoJSON } from '../utils/ovStopsToGeoJSON';
 
@@ -29,24 +26,17 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
 };
 
 function Map() {
-
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const { data, isLoading, error } = useStopAreas();
-  
+  const [allStopsGeoJSON, setAllStopsGeoJSON] = useState<GeoJSON.FeatureCollection | null>(null);
 
-  // Data Sync
+  // Convert fetched data to GeoJSON once
   useEffect(() => {
-  if (!mapRef.current || !isMapReady || !data) return;
-
-  const source = mapRef.current.getSource('stops-source') as maplibregl.GeoJSONSource;
-
-  if (source) {
-    source.setData(ovStopsToGeoJSON(data) as any);
-  }
-}, [data, isMapReady]);
-
+    if (!data) return;
+    setAllStopsGeoJSON(ovStopsToGeoJSON(data));
+  }, [data]);
 
 
   // Initialization
@@ -86,18 +76,48 @@ function Map() {
     map.on('mouseenter', 'stops-layer', () => (map.getCanvas().style.cursor = 'pointer'));
     map.on('mouseleave', 'stops-layer', () => (map.getCanvas().style.cursor = ''));
     
-    mapRef.current = map;
+    // Click on individual stops
     map.on('click', 'stops-layer', (e) => {
       if (!e.features?.length) return;
         const feature = e.features[0];
         console.log('Selected stop:', feature.properties);
       });
 
+    mapRef.current = map;
     return () => {
       map.remove();
       mapRef.current = null;
     };
   }, []);
+
+  // Update stops based on viewport
+    useEffect(() => {
+      if (!mapRef.current || !isMapReady || !allStopsGeoJSON) return;
+  
+      const map = mapRef.current;
+  
+      const updateVisibleStops = () => {
+        const bounds = map.getBounds();
+        const visibleFeatures = allStopsGeoJSON.features.filter(f =>
+          f.geometry.type === 'Point' &&
+          bounds.contains(f.geometry.coordinates as [number, number])
+        );
+
+        const source = map.getSource('stops-source') as maplibregl.GeoJSONSource;
+        source.setData({ type: 'FeatureCollection', features: visibleFeatures });
+      };
+
+
+      // Initial render
+      updateVisibleStops();
+  
+      // Update when user pans or zooms
+      map.on('moveend', updateVisibleStops);
+  
+      return () => {
+        map.off('moveend', updateVisibleStops);
+      };
+    }, [allStopsGeoJSON, isMapReady]);
   
 
   return (

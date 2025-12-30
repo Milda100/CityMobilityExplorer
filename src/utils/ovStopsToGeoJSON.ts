@@ -1,4 +1,6 @@
-export function ovStopsToGeoJSON(raw: Record<string, any>) {
+import type { FeatureCollection, Point } from 'geojson';
+
+export function ovStopsToGeoJSON(raw: Record<string, any>): FeatureCollection<Point, { id: string; name: string; town: string }> {
   const features = Object.values(raw)
     .filter(
       (s: any) =>
@@ -6,10 +8,10 @@ export function ovStopsToGeoJSON(raw: Record<string, any>) {
         typeof s.Latitude === 'number'
     )
     .map((s: any) => ({
-      type: 'Feature',
+      type: 'Feature' as const,
       geometry: {
-        type: 'Point',
-        coordinates: [s.Longitude, s.Latitude], // lng, lat
+        type: 'Point' as const,
+        coordinates: [s.Longitude, s.Latitude],
       },
       properties: {
         id: s.StopAreaCode,
@@ -19,7 +21,7 @@ export function ovStopsToGeoJSON(raw: Record<string, any>) {
     }));
 
   return {
-    type: 'FeatureCollection',
+    type: 'FeatureCollection' as const,
     features,
   };
 }
