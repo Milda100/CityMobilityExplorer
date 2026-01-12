@@ -1,0 +1,21 @@
+import { Router } from 'express';
+import fetch from 'node-fetch';
+import https from 'https';
+
+const router = Router();
+
+router.get('/', async (req, res) => {
+  try {
+    const response = await fetch('https://v0.ovapi.nl/stopareacode', { agent: httpsAgent });
+    console.log('OVAPI status:', response.status);
+    if (!response.ok) throw new Error(`OVAPI request failed: ${response.status}`);
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('Fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch stop areas' });
+  }
+});
+
+
+export default router;

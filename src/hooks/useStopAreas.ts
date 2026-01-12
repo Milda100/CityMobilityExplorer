@@ -4,8 +4,8 @@ export function useStopAreas() {
   return useQuery({
     queryKey: ['stop-areas'],
     queryFn: async () => {
-      const res = await fetch('https://v0.ovapi.nl/stopareacode');
-      if (!res.ok) throw new Error('Failed to fetch stop areas');
+      const res = await fetch('http://localhost:3000/api/stop-areas');
+      if (!res.ok) throw new Error('Failed to fetch stop areas via proxy');
       return res.json();
     },
     staleTime: 1000 * 60 * 60, // stops don’t move

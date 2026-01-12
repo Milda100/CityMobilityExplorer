@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import maplibregl from 'maplibre-gl';
 import { useStopAreas } from '../hooks/useStopAreas';
 import { ovStopsToGeoJSON } from '../utils/ovStopsToGeoJSON';
+import { Sidebar } from './Sidebar';
+import type { Stop } from '../types/stop';
 
 
 const OSM_STYLE: maplibregl.StyleSpecification = {
@@ -30,6 +32,8 @@ function Map() {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const { data, isLoading, error } = useStopAreas();
+  const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
+
 
   // Memoize the conversion to GeoJSON
   const allStopsGeoJSON = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point> | null>(() => {
@@ -88,9 +92,28 @@ function Map() {
     // Click on individual stops
     map.on('click', 'stops-layer', (e) => {
       if (!e.features?.length) return;
+
         const feature = e.features[0];
+
+        if (feature.geometry.type !== 'Point') return;
+
+        const coords = feature.geometry.coordinates as [number, number];
+        const props = feature.properties as any;
+
         console.log('Selected stop:', feature.properties);
-      });
+
+        setSelectedStop({
+          id: props.id,
+          name: props.name,
+          coordinates: coords
+        });
+
+        map.easeTo({
+          center: coords,
+          offset: [-150, 0],
+          duration: 400,
+        });
+    });
 
     mapRef.current = map;
     return () => {
@@ -107,8 +130,8 @@ function Map() {
   
       const updateVisibleStops = () => {
         const bounds = map.getBounds();
-        const visibleFeatures = allStopsGeoJSON.features.filter(f =>
-          bounds.contains(f.geometry.coordinates as [number, number])
+        const visibleFeatures = allStopsGeoJSON.features.filter(feature =>
+          bounds.contains(feature.geometry.coordinates as [number, number])
         );
 
         const source = map.getSource('stops-source') as maplibregl.GeoJSONSource;
@@ -142,6 +165,10 @@ function Map() {
         </div>
       )}
       <div ref={mapContainerRef} className="w-full h-full" />
+      <Sidebar
+        stop={selectedStop}
+        onClose={() => setSelectedStop(null)}
+      />
     </div>
     </>
   );
