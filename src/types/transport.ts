@@ -1,5 +1,5 @@
 
-export type TransportMode = 'bus' | 'tram' | 'train' | 'metro' | 'ferry';
+export type TransportMode = 'BUS' | 'TRAM' | 'TRAIN' | 'METRO' | 'FERRY';
 
 export interface TransportStop {
   id: string;
@@ -7,5 +7,4 @@ export interface TransportStop {
   type: TransportMode;
   coordinates: [number, number]; // [lat, lng]
 }
-
 

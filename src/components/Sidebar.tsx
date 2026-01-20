@@ -1,4 +1,18 @@
 import type { Stop } from "../types/stop";
+import { useDepartures } from "../hooks/useDepartures";
+import {FaTrain, FaBus, FaShip, FaQuestion} from "react-icons/fa";
+import { FaTrainTram, FaTrainSubway  } from "react-icons/fa6";
+import type { TransportMode } from "../types/transport";
+import type { JSX } from "react";
+
+export const transportIcons: Record<TransportMode | "UNKNOWN", JSX.Element> = {
+  TRAIN: <FaTrain className="text-blue-600" />,
+  BUS: <FaBus className="text-yellow-500" />,
+  METRO: <FaTrainSubway className="text-purple-600" />,
+  TRAM: <FaTrainTram className="text-red-500" />,
+  FERRY: <FaShip className="text-teal-600" />,
+  UNKNOWN: <FaQuestion className="text-gray-400" />,
+};
 
 type SidebarProps = {
   stop: Stop | null;
@@ -6,8 +20,8 @@ type SidebarProps = {
 };
 
 export function Sidebar({ stop, onClose }: SidebarProps) {
-  
   const isOpen = Boolean(stop);
+  const { data: departures, isLoading, error } = useDepartures(stop?.id ?? null);
 
  return (
     <aside
@@ -31,11 +45,43 @@ export function Sidebar({ stop, onClose }: SidebarProps) {
         <p className="text-sm text-gray-500">
           Upcoming departures
         </p>
+      {/* Loading */}
+        {isLoading && (
+          <div className="text-sm text-gray-400">Loading departures…</div>
+        )}
 
-        {/* Placeholder states */}
-        <div className="text-gray-400 text-sm">
-          Loading real-time data…
-        </div>
+        {/* Error */}
+        {error && (
+          <div className="text-sm text-red-500">
+            Failed to load departures
+          </div>
+        )}
+
+        {/* No departures */}
+        {!isLoading && !error && departures?.length === 0 && (
+          <div className="text-sm text-gray-400">
+            No upcoming departures
+          </div>
+        )}
+
+        {/* Departure list */}
+        {departures?.map((dep, i) => (
+          <div
+            key={i}
+            className="flex justify-between items-center border-b pb-2 text-sm"
+          >
+            <div className="flex items-center gap-2">
+              <div>{transportIcons[dep.type]}</div>
+              <div>
+                <div className="font-medium">Line {dep.line}</div>
+                <div className="text-gray-500">{dep.destination}</div>
+              </div>
+            </div>
+            <div className="font-semibold">
+              {new Date(dep.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </div>
+          </div>
+        ))}
       </div>
     </aside>
   );
