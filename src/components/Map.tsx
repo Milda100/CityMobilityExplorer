@@ -34,7 +34,7 @@ function Map() {
 
   // Memoize the conversion to GeoJSON
   const allStopsGeoJSON =
-    useMemo<GeoJSON.FeatureCollection<GeoJSON.Point> | null>(() => {
+    useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>  | null>(() => {
       if (!data) return null;
       return toGeoJSON(data);
     }, [data]);
@@ -117,12 +117,6 @@ function Map() {
           stopName: props.stopName,
           coordinates: coords,
         });
-
-        map.easeTo({
-          center: coords,
-          offset: [-150, 0],
-          duration: 400,
-        });
       });
     });
 
@@ -132,6 +126,17 @@ function Map() {
       mapRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (!mapRef.current || !selectedStop) return;
+
+    mapRef.current.easeTo({
+      center: selectedStop.coordinates,
+      offset: [-150, 0],
+      duration: 400,
+    });
+  }, [selectedStop]);
+
 
   // Update stops based on viewport
   useEffect(() => {
@@ -145,7 +150,8 @@ function Map() {
         bounds.contains(feature.geometry.coordinates as [number, number]),
       );
 
-      const source = map.getSource("stops-source") as maplibregl.GeoJSONSource;
+      const source = map.getSource("stops-source") as maplibregl.GeoJSONSource | undefined;
+      if (!source) return;
       source.setData({ type: "FeatureCollection", features: visibleFeatures });
     };
 

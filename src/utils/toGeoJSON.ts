@@ -18,6 +18,7 @@ export function toGeoJSON(
       properties: {
         id: s.StopAreaCode,
         stopName: s.TimingPointName,
+        coordinates: [s.Longitude, s.Latitude] as [number, number],
       },
     }));
 
