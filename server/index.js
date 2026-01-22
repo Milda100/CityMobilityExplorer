@@ -9,6 +9,6 @@ app.use(cors({ origin: 'http://localhost:5173' }));
 app.use('/api/stop-areas', stopAreasRouter);
 app.use('/api/departures', departures);
 
-const PORT = 3000;
+const PORT = process.env.PORT ?? 3000;
 app.listen(PORT, () => console.log(`Proxy running on http://localhost:${PORT}`));
 

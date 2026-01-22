@@ -29,17 +29,14 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const [isMapReady, setIsMapReady] = useState(false);
   const { data, isLoading, error } = useStopAreas();
   const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
-
 
   // Memoize the conversion to GeoJSON
   const allStopsGeoJSON = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point> | null>(() => {
     if (!data) return null;
     return ovStopsToGeoJSON(data);
   }, [data]);
-
 
   // Initialization
   useEffect(() => {
@@ -61,58 +58,50 @@ function Map() {
         }
       );
     }
-    
+
     map.on('load', async () => {
       map.addSource('stops-source', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
       });
 
-        const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-          const image = new Image();
-          image.onload = () => resolve(image);
-          image.onerror = reject;
-          image.src = '/icons/stop.svg';
-        });
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = '/icons/stop.svg';
+      });
 
-          map.addImage('stop', img, { sdf: false }); // true for colorable icons
+      map.addImage('stop', img, { sdf: false });
 
-          map.addLayer({
-            id: 'stops-layer',
-            type: 'symbol',
-            source: 'stops-source',
-            layout: {
-              'icon-image': 'stop',
-              'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.25, 13, 0.35, 16, 0.5],
-              'icon-allow-overlap': true,
-              'icon-anchor': 'bottom',
-            },
-          });
+      map.addLayer({
+        id: 'stops-layer',
+        type: 'symbol',
+        source: 'stops-source',
+        layout: {
+          'icon-image': 'stop',
+          'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.25, 13, 0.35, 16, 0.5],
+          'icon-allow-overlap': true,
+          'icon-anchor': 'bottom',
+        },
+      });
 
-    setIsMapReady(true);
-  });
+      map.on('mouseenter', 'stops-layer', () => { map.getCanvas().style.cursor = 'pointer';});
+      map.on('mouseleave', 'stops-layer', () => { map.getCanvas().style.cursor = ''; });
 
-    // GIS UX: Change cursor on hover
-    map.on('mouseenter', 'stops-layer', () => (map.getCanvas().style.cursor = 'pointer'));
-    map.on('mouseleave', 'stops-layer', () => (map.getCanvas().style.cursor = ''));
-    
-    // Click on individual stops
-    map.on('click', 'stops-layer', (e) => {
-      if (!e.features?.length) return;
+      map.on('click', 'stops-layer', (e) => {
+        if (!e.features?.length) return;
 
         const feature = e.features[0];
-
         if (feature.geometry.type !== 'Point') return;
 
         const coords = feature.geometry.coordinates as [number, number];
-        const props = feature.properties as any;
-
-        console.log('Selected stop:', feature.properties);
+        const props = feature.properties as Stop;
 
         setSelectedStop({
           id: props.id,
           name: props.name,
-          coordinates: coords
+          coordinates: coords,
         });
 
         map.easeTo({
@@ -120,6 +109,7 @@ function Map() {
           offset: [-150, 0],
           duration: 400,
         });
+      });
     });
 
     mapRef.current = map;
@@ -131,7 +121,7 @@ function Map() {
 
   // Update stops based on viewport
     useEffect(() => {
-      if (!mapRef.current || !isMapReady || !allStopsGeoJSON) return;
+      if (!mapRef.current || !allStopsGeoJSON) return;
   
       const map = mapRef.current;
   
@@ -155,7 +145,7 @@ function Map() {
       return () => {
         map.off('moveend', updateVisibleStops);
       };
-    }, [allStopsGeoJSON, isMapReady]);
+    }, [allStopsGeoJSON]);
   
 
   return (

@@ -41,8 +41,8 @@ export function Sidebar({ stop, onClose }: SidebarProps) {
         )}
 
         {/* Departure list */}
-        {departures?.map((dep, i) => (
-          <div key={i} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+        {departures?.map((dep) => (
+          <div key={`${dep.line}-${dep.time}`} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer">
             <div className="flex items-center gap-3">
 
               {/* Colored circle for line type */}
