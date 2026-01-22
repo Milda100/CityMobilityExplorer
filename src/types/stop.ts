@@ -1,5 +1,4 @@
-export type Stop = {
+export interface Stop {
   id: string;
-  name: string;
-  coordinates: [number, number];
+  stopName: string;
 }

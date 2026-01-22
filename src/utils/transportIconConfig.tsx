@@ -1,7 +1,7 @@
 import type { JSX } from "react";
-import type { TransportMode } from "../types/transport";
-import {FaTrain, FaBus, FaShip, FaQuestion} from "react-icons/fa";
-import { FaTrainTram, FaTrainSubway  } from "react-icons/fa6";
+import { FaTrain, FaBus, FaShip, FaQuestion } from "react-icons/fa";
+import { FaTrainTram, FaTrainSubway } from "react-icons/fa6";
+import type { TransportMode } from "../types/transportMode";
 
 export const transportIcons: Record<TransportMode | "UNKNOWN", JSX.Element> = {
   TRAIN: <FaTrain className="text-blue-600" />,
