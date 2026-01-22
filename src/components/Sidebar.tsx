@@ -21,8 +21,8 @@ export function Sidebar({ stop, onClose }: SidebarProps) {
       `}
     >
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 bg-[#3276c3] border-b p-4 flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-white">{stop?.name ?? ""}</h2>
+      <div className="sticky top-0 z-10 h-16 flex items-center justify-between px-4 shadow-lg bg-gradient-to-r from-[#3276c3] to-[#1f4e91]">
+        <h2 className="text-xl font-semibold text-white">{stop?.name ?? ""}</h2>
         <button
           onClick={onClose}
           className="text-white hover:text-black text-xl"
@@ -42,7 +42,7 @@ export function Sidebar({ stop, onClose }: SidebarProps) {
 
         {/* Departure list */}
         {departures?.map((dep, i) => (
-          <div key={i} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition">
+          <div key={i} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer">
             <div className="flex items-center gap-3">
 
               {/* Colored circle for line type */}
