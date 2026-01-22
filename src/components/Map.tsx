@@ -5,7 +5,6 @@ import { ovStopsToGeoJSON } from '../utils/ovStopsToGeoJSON';
 import { Sidebar } from './Sidebar';
 import type { Stop } from '../types/stop';
 
-
 const OSM_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
@@ -63,27 +62,35 @@ function Map() {
       );
     }
     
-
-    map.on('load', () => {
+    map.on('load', async () => {
       map.addSource('stops-source', {
         type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] }
+        data: { type: 'FeatureCollection', features: [] },
       });
 
-      map.addLayer({
-        id: 'stops-layer',
-        type: 'circle',
-        source: 'stops-source',
-        paint: {
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 2, 15, 8],
-          'circle-color': '#3b82f6',
-          'circle-stroke-width': 1,
-          'circle-stroke-color': '#ffffff',
-        }
-      });
+        const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve(image);
+          image.onerror = reject;
+          image.src = '/icons/stop.svg';
+        });
 
-      setIsMapReady(true);
-    });
+          map.addImage('stop', img, { sdf: false }); // true for colorable icons
+
+          map.addLayer({
+            id: 'stops-layer',
+            type: 'symbol',
+            source: 'stops-source',
+            layout: {
+              'icon-image': 'stop',
+              'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.25, 13, 0.35, 16, 0.5],
+              'icon-allow-overlap': true,
+              'icon-anchor': 'bottom',
+            },
+          });
+
+    setIsMapReady(true);
+  });
 
     // GIS UX: Change cursor on hover
     map.on('mouseenter', 'stops-layer', () => (map.getCanvas().style.cursor = 'pointer'));
