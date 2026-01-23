@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import maplibregl from "maplibre-gl";
 import { useStopAreas } from "../hooks/useStopAreas";
 import { toGeoJSON } from "../utils/toGeoJSON";
-import { Sidebar } from "./Sidebar";
 import type { Stop } from "../types/stop";
 
 const OSM_STYLE: maplibregl.StyleSpecification = {
@@ -26,11 +25,15 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
   ],
 };
 
-function Map() {
+type MapProps = {
+  selectedStop: Stop | null;
+  onSelectedStop: (stop: Stop | null) => void;
+}
+
+function Map({ selectedStop, onSelectedStop }: MapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const { data, isLoading, error } = useStopAreas();
-  const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
 
   // Memoize the conversion to GeoJSON
   const allStopsGeoJSON =
@@ -112,7 +115,7 @@ function Map() {
         const props = feature.properties as Stop;
         console.log("Stop clicked:", props);
 
-        setSelectedStop({
+        onSelectedStop({
           id: props.id,
           stopName: props.stopName,
           coordinates: coords,
@@ -169,6 +172,7 @@ function Map() {
   return (
     <>
       <div className="relative w-full h-full">
+        <div ref={mapContainerRef} className="w-full h-full" />
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 backdrop-blur-sm font-semibold">
             Loading transportation stops…
@@ -179,8 +183,6 @@ function Map() {
             Failed to load stop data
           </div>
         )}
-        <div ref={mapContainerRef} className="w-full h-full" />
-        <Sidebar stop={selectedStop} onClose={() => setSelectedStop(null)} />
       </div>
     </>
   );
