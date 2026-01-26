@@ -1,1 +1,1 @@
-export type TransportMode = 'BUS' | 'TRAM' | 'TRAIN' | 'METRO' | 'FERRY';
+export type TransportMode = 'BUS' | 'TRAM' | 'TRAIN' | 'METRO' | 'BOAT';

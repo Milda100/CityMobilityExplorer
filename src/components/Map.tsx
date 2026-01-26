@@ -28,11 +28,14 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
 type MapProps = {
   selectedStop: Stop | null;
   onSelectedStop: (stop: Stop | null) => void;
+  mapRef?: React.RefObject<maplibregl.Map | null>;
+
 }
 
-function Map({ selectedStop, onSelectedStop }: MapProps) {
+function Map({ selectedStop, onSelectedStop, mapRef }: MapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
+  const internalMapRef = useRef<maplibregl.Map | null>(null);
+  const mapReference = mapRef ?? internalMapRef;
   const { data, isLoading, error } = useStopAreas();
 
   // Memoize the conversion to GeoJSON
@@ -44,7 +47,7 @@ function Map({ selectedStop, onSelectedStop }: MapProps) {
 
   // Initialization
   useEffect(() => {
-    if (mapRef.current || !mapContainerRef.current) return;
+    if (mapReference.current || !mapContainerRef.current) return;
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
@@ -123,17 +126,17 @@ function Map({ selectedStop, onSelectedStop }: MapProps) {
       });
     });
 
-    mapRef.current = map;
+    mapReference.current = map;
     return () => {
       map.remove();
-      mapRef.current = null;
+      mapReference.current = null;
     };
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !selectedStop) return;
+    if (!mapReference.current || !selectedStop) return;
 
-    mapRef.current.easeTo({
+    mapReference.current.easeTo({
       center: selectedStop.coordinates,
       offset: [-150, 0],
       duration: 400,
@@ -143,9 +146,9 @@ function Map({ selectedStop, onSelectedStop }: MapProps) {
 
   // Update stops based on viewport
   useEffect(() => {
-    if (!mapRef.current || !allStopsGeoJSON) return;
+    if (!mapReference.current || !allStopsGeoJSON) return;
 
-    const map = mapRef.current;
+    const map = mapReference.current;
 
     const updateVisibleStops = () => {
       const bounds = map.getBounds();
