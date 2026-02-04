@@ -3,6 +3,8 @@ import maplibregl from "maplibre-gl";
 import { useStopAreas } from "../hooks/useStopAreas";
 import { toGeoJSON } from "../utils/toGeoJSON";
 import type { Stop } from "../types/stop";
+import { useLinePasstimes } from "../hooks/useLinePasstimes";
+// import { useLines } from "../hooks/useLines";
 
 const OSM_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -28,22 +30,62 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
 type MapProps = {
   selectedStop: Stop | null;
   onSelectedStop: (stop: Stop | null) => void;
+  lineId: string | null;
   mapRef?: React.RefObject<maplibregl.Map | null>;
+
 
 }
 
-function Map({ selectedStop, onSelectedStop, mapRef }: MapProps) {
+function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const internalMapRef = useRef<maplibregl.Map | null>(null);
   const mapReference = mapRef ?? internalMapRef;
-  const { data, isLoading, error } = useStopAreas();
+
+  const { data: stopAreas, isLoading, error } = useStopAreas();
+  // const { data: lines, isLoading: isLoadingLines, error: linesError } = useLines();
+  const { data: lineActuals } = useLinePasstimes(lineId);
+  console.log("fetching vehicles for lineId:", lineId);
+  console.log("lineActuals from hook:", lineActuals);
 
   // Memoize the conversion to GeoJSON
   const allStopsGeoJSON =
-    useMemo<GeoJSON.FeatureCollection<GeoJSON.Point>  | null>(() => {
-      if (!data) return null;
-      return toGeoJSON(data);
-    }, [data]);
+    useMemo<GeoJSON.FeatureCollection<GeoJSON.Point> | null>(() => {
+      if (!stopAreas) return null;
+      return toGeoJSON(stopAreas);
+    }, [stopAreas]);
+
+  const vehiclesGeoJSON = useMemo(() => {
+  if (!lineActuals || !lineId) return null;
+
+  const lineData = lineActuals[lineId];
+  if (!lineData?.Actuals) return null;
+
+  const vehiclesArray = Object.values(lineData.Actuals);
+
+  const geojson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+    type: "FeatureCollection",
+    features: vehiclesArray.map((v: any) => ({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [v.Longitude, v.Latitude],
+      },
+      properties: {
+        bearing: v.Bearing ?? 0,
+        line: v.LinePublicNumber,
+        destination: v.DestinationName50,
+      },
+    })),
+  };
+  return geojson;
+}, [lineActuals, lineId]);
+
+
+  useEffect(() => {
+  if (vehiclesGeoJSON) {
+    console.log("Vehicles GeoJSON ready:", vehiclesGeoJSON);
+  }
+}, [vehiclesGeoJSON]);
 
   // Initialization
   useEffect(() => {
@@ -65,19 +107,46 @@ function Map({ selectedStop, onSelectedStop, mapRef }: MapProps) {
     }
 
     map.on("load", async () => {
+      // Vehicle layer
+      map.addSource("vehicles-source", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+
+      const vehicleImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = "/icons/bus.svg"; // or tram/metro later
+      });
+
+      map.addImage("vehicle", vehicleImg);
+
+      map.addLayer({
+        id: "vehicles-layer",
+        type: "symbol",
+        source: "vehicles-source",
+        layout: {
+          "icon-image": "vehicle",
+          "icon-size": 0.4,
+          "icon-allow-overlap": true,
+        },
+      });
+
+      // Stop layer
       map.addSource("stops-source", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
       });
 
-      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const stopImg = await new Promise<HTMLImageElement>((resolve, reject) => {
         const image = new Image();
         image.onload = () => resolve(image);
         image.onerror = reject;
         image.src = "/icons/stop.svg";
       });
 
-      map.addImage("stop", img, { sdf: false });
+      map.addImage("stop", stopImg, { sdf: false });
 
       map.addLayer({
         id: "stops-layer",
@@ -171,6 +240,16 @@ function Map({ selectedStop, onSelectedStop, mapRef }: MapProps) {
       map.off("moveend", updateVisibleStops);
     };
   }, [allStopsGeoJSON]);
+
+  // Update vehicles layer whenever line actuals change
+  useEffect(() => {
+  if (!mapReference.current || !vehiclesGeoJSON) return;
+
+  const source = mapReference.current.getSource("vehicles-source") as maplibregl.GeoJSONSource | undefined;
+  if (!source) return;
+
+  source.setData(vehiclesGeoJSON);
+}, [vehiclesGeoJSON]);
 
   return (
     <>

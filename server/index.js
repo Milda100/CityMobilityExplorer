@@ -3,6 +3,9 @@ import cors from 'cors';
 import stopAreasRouter from './routes/stopAreas.js';
 import departuresRouter from './routes/departures.js';
 import timingPointRouter from './routes/timingPoint.js';
+import linePasstimesRouter from './routes/linePasstimes.js';
+import linesRouter from './routes/lines.js';
+
 
 const app = express();
 
@@ -18,6 +21,9 @@ app.use(cors({ origin: clientOrigin }));
 app.use('/api/stop-areas', stopAreasRouter);
 app.use('/api/timing-points', timingPointRouter);
 app.use('/api/departures', departuresRouter);
+app.use('/api/line-passtimes', linePasstimesRouter);
+app.use('/api/lines', linesRouter);
+
 
 const PORT = process.env.PORT ?? 3000;
 app.listen(PORT, () => {

@@ -7,6 +7,7 @@ import maplibregl from "maplibre-gl";
 
 function MapPage() {
   const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
+  const [lineId, setLineId] = useState<string | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
 
   return (
@@ -30,9 +31,9 @@ function MapPage() {
         /> */}
       </header>
       <main className="flex-1 relative">
-        <Map selectedStop={selectedStop} onSelectedStop={setSelectedStop} mapRef={mapRef} />
+        <Map selectedStop={selectedStop} onSelectedStop={setSelectedStop} lineId={lineId} mapRef={mapRef} />
         {selectedStop && (
-          <Sidebar stop={selectedStop} onClose={() => setSelectedStop(null)} />
+          <Sidebar stop={selectedStop} onClose={() => setSelectedStop(null)} onSelectLine={setLineId} />
         )}
       </main>
     </div>

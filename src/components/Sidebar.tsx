@@ -5,9 +5,10 @@ import { transportIcons, iconBgColors } from "../utils/transportIconConfig";
 type SidebarProps = {
   stop: Stop | null;
   onClose: () => void;
+  onSelectLine: (lineId: string) => void;
 };
 
-export function Sidebar({ stop, onClose }: SidebarProps) {
+export function Sidebar({ stop, onClose, onSelectLine}: SidebarProps) {
   const isOpen = Boolean(stop);
   const {
     data: departures,
@@ -53,6 +54,10 @@ export function Sidebar({ stop, onClose }: SidebarProps) {
           <div
             key={`${dep.line}-${dep.time}`}
             className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+            onClick={() => {
+              const lineId = `${dep.operatorCode}_${dep.linePlanningNumber}_${dep.direction}`;
+              onSelectLine(lineId);
+            }}
           >
             <div className="flex items-center gap-3">
               {/* Colored circle for line type */}

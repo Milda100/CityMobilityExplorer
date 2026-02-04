@@ -1,0 +1,1 @@
+export type TransportType = 'BUS' | 'TRAM' | 'TRAIN' | 'METRO' | 'BOAT';

@@ -20,6 +20,9 @@ export function useDepartures(stopId: string | null) {
             destination: d.DestinationName50,
             time: d.ExpectedDepartureTime || d.AimedDepartureTime,
             type: d.TransportType ?? "UNKNOWN",
+            operatorCode: d.OperatorCode,
+            linePlanningNumber: d.LinePlanningNumber,
+            direction: d.LineDirection,
             }));
         // Sort by time
         departures.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());

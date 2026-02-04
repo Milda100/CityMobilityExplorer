@@ -1,8 +1,11 @@
-import type { TransportMode } from "./transportMode";
+import type { TransportType } from "./transportType";
 
 export type Departure = {
   line: string;
   destination: string;
   time: string;
-  type: TransportMode | "UNKNOWN";
+  type: TransportType | "UNKNOWN";
+  operatorCode: string;
+  linePlanningNumber: string;
+  direction: number;
 };

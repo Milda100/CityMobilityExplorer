@@ -15,7 +15,11 @@ router.get('/', async (req, res) => {
     return res.status(400).json({ error: 'Missing stopId' });
     }
   try {
-    const response = await fetch(`https://v0.ovapi.nl/stopareacode/${stopId}/departures`, { agent: httpsAgent });
+    const response = await fetch(`https://v0.ovapi.nl/stopareacode/${stopId}/departures`, {
+      agent: httpsAgent,
+      headers: { 'User-Agent': 'CityMobilityExplorer/1.0' },
+    });
+    
     console.log('OVAPI status:', response.status);
     if (!response.ok) throw new Error(`OVAPI request failed: ${response.status}`);
     const data = await response.json();
