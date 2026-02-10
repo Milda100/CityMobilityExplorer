@@ -1,6 +1,6 @@
 import { useDepartures } from "../hooks/useDepartures";
 import type { Stop } from "../types/stop";
-import { transportIcons, iconBgColors } from "../utils/transportIconConfig";
+import { transportConfig, iconBgColors } from "../utils/transportIconConfig";
 
 type SidebarProps = {
   stop: Stop | null;
@@ -64,7 +64,7 @@ export function Sidebar({ stop, onClose, onSelectLine}: SidebarProps) {
               <div
                 className={`flex items-center justify-center w-10 h-10 rounded-full ${iconBgColors[dep.type]}`}
               >
-                {transportIcons[dep.type]}
+                {transportConfig[dep.type].reactIcon}
               </div>
               <div className="flex flex-col">
                 <div className="font-medium text-gray-800">{dep.line}</div>
