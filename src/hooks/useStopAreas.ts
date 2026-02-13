@@ -8,6 +8,7 @@ export function useStopAreas() {
       if (!res.ok) throw new Error('Failed to fetch stop areas via proxy');
       return res.json();
     },
-    staleTime: 1000 * 60 * 60, // stops don’t move
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 }

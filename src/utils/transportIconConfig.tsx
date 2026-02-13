@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 import { FaTrain, FaBus, FaShip, FaQuestion } from "react-icons/fa";
-import { FaTrainTram, FaTrainSubway } from "react-icons/fa6";
+import { FaTrainTram } from "react-icons/fa6";
+import { MdSubway } from "react-icons/md";
 import type { TransportType } from "../types/transportType";
 
 export const transportConfig: Record<TransportType | "UNKNOWN", {
@@ -19,7 +20,7 @@ export const transportConfig: Record<TransportType | "UNKNOWN", {
     mapIcon: "/icons/bus.svg",
   },
   METRO: {
-    reactIcon: <FaTrainSubway className="text-purple-600" />,
+    reactIcon: <MdSubway className="text-purple-600" />,
     bgColor: "bg-purple-100",
     mapIcon: "/icons/metro.svg",
   },
