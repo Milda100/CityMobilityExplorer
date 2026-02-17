@@ -10,7 +10,7 @@ const httpsAgent = new https.Agent({
 
 router.get("/", async (req, res) => {
   try {
-    const response = await fetch("https://v0.ovapi.nl/stopareacode", {
+    const response = await fetch(`${process.env.API_URL}/stopareacode`, {
       agent: httpsAgent,
       headers: { "User-Agent": "CityMobilityExplorer/1.0" },
     });

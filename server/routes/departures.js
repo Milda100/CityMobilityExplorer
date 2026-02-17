@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
   }
   try {
     const response = await fetch(
-      `https://v0.ovapi.nl/stopareacode/${stopId}/departures`,
+      `${process.env.API_URL}/stopareacode/${stopId}/departures`,
       {
         agent: httpsAgent,
         headers: { "User-Agent": "CityMobilityExplorer/1.0" },

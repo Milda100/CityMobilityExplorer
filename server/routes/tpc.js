@@ -10,7 +10,7 @@ const httpsAgent = new https.Agent({
 
 router.get("/", async (req, res) => {
   try {
-    const response = await fetch("https://v0.ovapi.nl/tpc", {
+    const response = await fetch(`${process.env.API_URL}/tpc`, {
       agent: httpsAgent,
       headers: { "User-Agent": "CityMobilityExplorer/1.0" },
     });
@@ -33,7 +33,7 @@ router.get("/:code", async (req, res) => {
   try {
     const { code } = req.params;
 
-    const response = await fetch(`https://v0.ovapi.nl/tpc/${code}`, {
+    const response = await fetch(`${process.env.API_URL}/tpc/${code}`, {
       agent: httpsAgent,
       headers: { "User-Agent": "CityMobilityExplorer/1.0" },
     });

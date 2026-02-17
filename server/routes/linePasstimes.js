@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
   if (!lineId) return res.status(400).json({ error: "Missing lineId" });
 
   try {
-    const response = await fetch(`https://v0.ovapi.nl/line/${lineId}`, {
+    const response = await fetch(`${process.env.API_URL}/line/${lineId}`, {
       agent: httpsAgent,
       headers: { "User-Agent": "CityMobilityExplorer/1.0" },
     });

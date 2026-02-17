@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
     if (cashedLines && Date.now() - lastFetchTime < CACHE_DURATION) {
       return res.json(cashedLines);
     }
-    const response = await fetch(`https://v0.ovapi.nl/line`, {
+    const response = await fetch(`${process.env.API_URL}/line`, {
       agent: httpsAgent,
       headers: { "User-Agent": "CityMobilityExplorer/1.0" },
     });
