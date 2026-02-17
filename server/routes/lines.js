@@ -1,6 +1,6 @@
-import { Router } from 'express';
-import fetch from 'node-fetch';
-import https from 'https';
+import { Router } from "express";
+import fetch from "node-fetch";
+import https from "https";
 
 const router = Router();
 const httpsAgent = new https.Agent({
@@ -11,17 +11,18 @@ let cashedLines = null;
 let lastFetchTime = 0;
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    if (cashedLines && (Date.now() - lastFetchTime < CACHE_DURATION)) {
+    if (cashedLines && Date.now() - lastFetchTime < CACHE_DURATION) {
       return res.json(cashedLines);
     }
     const response = await fetch(`https://v0.ovapi.nl/line`, {
       agent: httpsAgent,
-      headers: { 'User-Agent': 'CityMobilityExplorer/1.0' },
+      headers: { "User-Agent": "CityMobilityExplorer/1.0" },
     });
 
-    if (!response.ok) throw new Error(`OVAPI request failed: ${response.status}`);
+    if (!response.ok)
+      throw new Error(`OVAPI request failed: ${response.status}`);
     const rawData = await response.json();
     const lines = Object.entries(rawData).map(([lineId, line]) => ({
       lineId,
@@ -37,8 +38,8 @@ router.get('/', async (req, res) => {
 
     res.json(lines);
   } catch (err) {
-    console.error('Fetch lines error:', err);
-    res.status(500).json({ error: 'Failed to fetch lines' });
+    console.error("Fetch lines error:", err);
+    res.status(500).json({ error: "Failed to fetch lines" });
   }
 });
 export default router;
