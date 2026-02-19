@@ -10,38 +10,72 @@ const httpsAgent = new https.Agent({
 
 router.get("/", async (req, res) => {
   try {
-    const response = await fetch(`${process.env.API_URL}/tpc`, {
+    const tcpResponse = await fetch(`${process.env.API_URL}/tpc`, {
       agent: httpsAgent,
       headers: { "User-Agent": "CityMobilityExplorer/1.0" },
     });
 
-    if (!response.ok) {
-      return res.status(response.status).json({
+    if (!tcpResponse.ok) {
+      return res.status(tcpResponse.status).json({
         error: "Failed to fetch OVAPI data",
       });
     }
-    const data = await response.json();
-    const timingPointCodes = Object.keys(data);
-    res.json(timingPointCodes);
-  } catch (error) {
-    console.error("TPC fetch error:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+    const tpcData = await tcpResponse.json();
+    const tpc = Object.keys(tpcData); //returns an array of tpc
 
-router.get("/:code", async (req, res) => {
-  try {
-    const { code } = req.params;
-
-    const response = await fetch(`${process.env.API_URL}/tpc/${code}`, {
-      agent: httpsAgent,
-      headers: { "User-Agent": "CityMobilityExplorer/1.0" },
+    //feching tpc details and coordinates
+    const tpcDetailsPromises = tpc.map(async (code) => {
+      try {
+        const tpcDetailResponse = await fetch(
+          `${process.env.API_URL}/tpc/${code}`,
+          {
+            agent: httpsAgent,
+            headers: { "User-Agent": "CityMobilityExplorer/1.0" },
+          },
+        );
+        const tpcDetailData = await tpcDetailResponse.json();
+        return tpcDetailData;
+      } catch (error) {
+        console.error(`Error fetching details for TPC ${code}:`, error);
+        return null; // Return null for failed fetches
+      }
     });
 
-    const data = await response.json();
-    res.json(data);
+    const allTpcDetails = await Promise.all(tpcDetailsPromises);
+
+    //convert to GeoJSON format
+    const features = allTpcDetails
+      .filter((item) => item) // remove nulls
+      .map((item) => {
+        const key = Object.keys(item)[0];
+        const stop = item[key].Stop;
+
+        return {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [stop.Longitude, stop.Latitude],
+          },
+          properties: {
+            town: stop.TimingPointTown,
+            name: stop.TimingPointName,
+            tpc: stop.TimingPointCode,
+            stopAreaCode: stop.StopAreaCode,
+            tpWheelChairAccessible: stop.TimingPointWheelChairAccessible,
+            tpVisualAccessible: stop.TimingPointVisualAccessible,
+          },
+        };
+      });
+
+    const geojson = {
+      type: "FeatureCollection",
+      features,
+    };
+
+    // Step 4: Send GeoJSON to client
+    res.json(geojson);
   } catch (error) {
-    console.error("TPC detail error:", error);
+    console.error("TPC fetch error:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
