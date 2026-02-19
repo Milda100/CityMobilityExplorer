@@ -8,8 +8,15 @@ const httpsAgent = new https.Agent({
   rejectUnauthorized: false, // WARNING: only for development!
 });
 
+let tpcCache = null; // in memory chache until server restart
+
 router.get("/", async (req, res) => {
   try {
+    if (tpcCache) {
+      console.log("Serving TPC data from cache");
+      return res.json(tpcCache);
+    }
+    console.log("Building TPC cache...");
     const tcpResponse = await fetch(`${process.env.API_URL}/tpc`, {
       agent: httpsAgent,
       headers: { "User-Agent": "CityMobilityExplorer/1.0" },
@@ -23,7 +30,7 @@ router.get("/", async (req, res) => {
     const tpcData = await tcpResponse.json();
     const tpc = Object.keys(tpcData); //returns an array of tpc
 
-    //feching tpc details and coordinates
+    // feching tpc details and coordinates
     const tpcDetailsPromises = tpc.map(async (code) => {
       try {
         const tpcDetailResponse = await fetch(
@@ -43,7 +50,7 @@ router.get("/", async (req, res) => {
 
     const allTpcDetails = await Promise.all(tpcDetailsPromises);
 
-    //convert to GeoJSON format
+    // convert to GeoJSON format
     const features = allTpcDetails
       .filter((item) => item) // remove nulls
       .map((item) => {
@@ -72,7 +79,14 @@ router.get("/", async (req, res) => {
       features,
     };
 
-    // Step 4: Send GeoJSON to client
+    tpcCache = geojson; // cache the result
+    console.log(
+      "TPC cache built successfully with",
+      features.length,
+      "features",
+    );
+
+    // Send GeoJSON to client
     res.json(geojson);
   } catch (error) {
     console.error("TPC fetch error:", error);
