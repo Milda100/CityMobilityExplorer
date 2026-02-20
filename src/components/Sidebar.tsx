@@ -27,7 +27,7 @@ export function Sidebar({ stop, onClose, onSelectLine}: SidebarProps) {
     >
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 h-16 flex items-center justify-between px-4 shadow-lg bg-gradient-to-r from-[#3276c3] to-[#1f4e91]">
-        <h2 className="text-xl font-semibold text-white">{stop?.stopName ?? ""}</h2>
+        <h2 className="text-xl font-semibold text-white">{stop?.name ?? ""}</h2>
         <button
           onClick={onClose}
           className="text-white hover:text-black text-xl"

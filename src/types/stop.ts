@@ -1,5 +1,10 @@
 export interface Stop {
   id: string;
-  stopName: string;
   coordinates: [number, number];
+  town: string;
+  name: string;
+  tpc: string;
+  stopAreaCode: string;
+  tpWheelChairAccessible: string;
+  tpVisualAccessible: string;
 }

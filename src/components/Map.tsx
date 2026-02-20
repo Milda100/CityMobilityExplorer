@@ -1,10 +1,12 @@
 import { useEffect, useRef, useMemo } from "react";
 import maplibregl from "maplibre-gl";
-import { useStopAreas } from "../hooks/useStopAreas";
-import { toGeoJSON } from "../utils/toGeoJSON";
+import type { Feature, Point } from "geojson";
+// import { useStopAreas } from "../hooks/useStopAreas";
+// import { toGeoJSON } from "../utils/toGeoJSON";
 import type { Stop } from "../types/stop";
 import { useLinePasstimes } from "../hooks/useLinePasstimes";
 import { transportConfig } from "../utils/transportIconConfig";
+import { useTpc } from "../hooks/useTpc";
 // import { useLines } from "../hooks/useLines";
 
 const OSM_STYLE: maplibregl.StyleSpecification = {
@@ -33,27 +35,29 @@ type MapProps = {
   onSelectedStop: (stop: Stop | null) => void;
   lineId: string | null;
   mapRef?: React.RefObject<maplibregl.Map | null>;
-}
+};
 
 function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const internalMapRef = useRef<maplibregl.Map | null>(null);
   const mapReference = mapRef ?? internalMapRef;
 
-  const { data: stopAreas, isLoading, error } = useStopAreas();
+  const { data: tpcGeojson, isLoading, error } = useTpc();
+  // const { data: stopAreas, isLoading, error } = useStopAreas();
   // const { data: lines, isLoading: isLoadingLines, error: linesError } = useLines();
   const { data: lineActuals } = useLinePasstimes(lineId);
   console.log("fetching vehicles for lineId:", lineId);
   console.log("lineActuals from hook:", lineActuals);
+  console.log("tpcGeojson", tpcGeojson);
 
- /* ---------------- Stops GeoJSON ---------------- */
-  const allStopsGeoJSON =
-    useMemo<GeoJSON.FeatureCollection<GeoJSON.Point> | null>(() => {
-      if (!stopAreas) return null;
-      return toGeoJSON(stopAreas);
-    }, [stopAreas]);
+  /* ---------------- Stops GeoJSON ---------------- */
+  // const allStopsGeoJSON =
+  //   useMemo<GeoJSON.FeatureCollection<GeoJSON.Point> | null>(() => {
+  //     if (!stopAreas) return null;
+  //     return toGeoJSON(stopAreas);
+  //   }, [stopAreas]);
 
-/* ---------------- Vehicles GeoJSON ---------------- */
+  /* ---------------- Vehicles GeoJSON ---------------- */
   const vehiclesGeoJSON = useMemo(() => {
     if (!lineActuals || !lineId) return null;
 
@@ -65,7 +69,8 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
     const geojson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
       type: "FeatureCollection",
       features: vehiclesArray.map((v: any) => {
-        const transportType = (v.TransportType as keyof typeof transportConfig) ?? "UNKNOWN";
+        const transportType =
+          (v.TransportType as keyof typeof transportConfig) ?? "UNKNOWN";
 
         return {
           type: "Feature",
@@ -80,11 +85,10 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
             destination: v.DestinationName50,
           },
         };
-      })
+      }),
     };
     return geojson;
   }, [lineActuals, lineId]);
-
 
   useEffect(() => {
     if (vehiclesGeoJSON) {
@@ -92,7 +96,7 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
     }
   }, [vehiclesGeoJSON]);
 
- /* ---------------- Map initialization ---------------- */
+  /* ---------------- Map initialization ---------------- */
   useEffect(() => {
     if (mapReference.current || !mapContainerRef.current) return;
 
@@ -123,7 +127,7 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
       });
 
     map.on("load", async () => {
-     /* ---- VEHICLES ---- */
+      /* ---- VEHICLES ---- */
       map.addSource("vehicles-source", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -151,7 +155,7 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
       });
 
       /* ---- STOPS ---- */
-      map.addSource("stops-source", {
+      map.addSource("tpc-source", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
       });
@@ -163,9 +167,9 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
       }
 
       map.addLayer({
-        id: "stops-layer",
+        id: "tpc-layer",
         type: "symbol",
-        source: "stops-source",
+        source: "tpc-source",
         layout: {
           "icon-image": "stop",
           "icon-size": [
@@ -183,29 +187,34 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
           "icon-anchor": "bottom",
         },
       });
-      
+
       /* ---- Hover & click ---- */
-      map.on("mouseenter", "stops-layer", () => {
+      map.on("mouseenter", "tpc-layer", () => {
         map.getCanvas().style.cursor = "pointer";
       });
-      map.on("mouseleave", "stops-layer", () => {
+      map.on("mouseleave", "tpc-layer", () => {
         map.getCanvas().style.cursor = "";
       });
 
-      map.on("click", "stops-layer", (e) => {
+      map.on("click", "tpc-layer", (e) => {
         if (!e.features?.length) return;
 
         const feature = e.features[0];
         if (feature.geometry.type !== "Point") return;
 
         const coords = feature.geometry.coordinates as [number, number];
-        const props = feature.properties as Stop;
+        const props = feature.properties as any;;
         console.log("Stop clicked:", props);
 
         onSelectedStop({
-          id: props.id,
-          stopName: props.stopName,
+          id: props.TimingPointCode,
           coordinates: coords,
+          town: props.TimingPointTown,
+          name: props.TimingPointName,
+          tpc: props.TimingPointCode,
+          stopAreaCode: props.StopAreaCode,
+          tpWheelChairAccessible: props.TimingPointWheelChairAccessible,
+          tpVisualAccessible: props.TimingPointVisualAccessible,
         });
       });
     });
@@ -217,40 +226,43 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
     };
   }, []);
 
-/* ---------------- Update visible stops based on viewport ---------------- */
+  /* ---------------- Update visible stops based on viewport ---------------- */
   useEffect(() => {
-    if (!mapReference.current || !allStopsGeoJSON) return;
+    if (!mapReference.current || !tpcGeojson) return;
 
     const map = mapReference.current;
 
     const updateVisibleStops = () => {
       const bounds = map.getBounds();
-      const visibleFeatures = allStopsGeoJSON.features.filter((feature) =>
-        bounds.contains(feature.geometry.coordinates as [number, number]),
+      const visibleFeatures = tpcGeojson.features.filter(
+        (feature: Feature<Point>) =>
+          bounds.contains(feature.geometry.coordinates as [number, number]),
       );
 
-      const source = map.getSource("stops-source") as maplibregl.GeoJSONSource | undefined;
+      const source = map.getSource("tpc-source") as
+        | maplibregl.GeoJSONSource
+        | undefined;
       if (!source) return;
       source.setData({ type: "FeatureCollection", features: visibleFeatures });
     };
-    updateVisibleStops();     // Initial render
-    map.on("moveend", updateVisibleStops);     // Update when user pans or zooms
+    updateVisibleStops(); // Initial render
+    map.on("moveend", updateVisibleStops); // Update when user pans or zooms
     return () => {
       map.off("moveend", updateVisibleStops);
     };
-  }, [allStopsGeoJSON]);
+  }, [tpcGeojson]);
 
-//   // Update vehicles layer whenever line actuals change
-//   useEffect(() => {
-//   if (!mapReference.current || !vehiclesGeoJSON) return;
+  //   // Update vehicles layer whenever line actuals change
+  //   useEffect(() => {
+  //   if (!mapReference.current || !vehiclesGeoJSON) return;
 
-//   const source = mapReference.current.getSource("vehicles-source") as maplibregl.GeoJSONSource | undefined;
-//   if (!source) return;
+  //   const source = mapReference.current.getSource("vehicles-source") as maplibregl.GeoJSONSource | undefined;
+  //   if (!source) return;
 
-//   source.setData(vehiclesGeoJSON);
-// }, [vehiclesGeoJSON]);
+  //   source.setData(vehiclesGeoJSON);
+  // }, [vehiclesGeoJSON]);
 
- /* ---------------- Show / hide vehicles ---------------- */
+  /* ---------------- Show / hide vehicles ---------------- */
 
   useEffect(() => {
     if (!mapReference.current) return;
@@ -263,33 +275,33 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
     map.setLayoutProperty(
       "vehicles-layer",
       "visibility",
-      visible ? "visible" : "none"
+      visible ? "visible" : "none",
     );
   }, [selectedStop, lineId]);
 
-/* ---------------- Update vehicle data ---------------- */
+  /* ---------------- Update vehicle data ---------------- */
 
   useEffect(() => {
     if (!mapReference.current || !vehiclesGeoJSON) return;
     if (!selectedStop || !lineId) return;
 
     const source = mapReference.current.getSource(
-      "vehicles-source"
+      "vehicles-source",
     ) as maplibregl.GeoJSONSource;
 
     source.setData(vehiclesGeoJSON);
   }, [vehiclesGeoJSON, selectedStop, lineId]);
 
-/* ---------------- Center selected stop ---------------- */
+  /* ---------------- Center selected stop ---------------- */
 
-useEffect(() => {
-  if (!mapReference.current || !selectedStop) return;
-  mapReference.current.easeTo({
-    center: selectedStop.coordinates,
-    offset: [-150, 0],
-    duration: 400,
-  });
-}, [selectedStop]);
+  useEffect(() => {
+    if (!mapReference.current || !selectedStop) return;
+    mapReference.current.easeTo({
+      center: selectedStop.coordinates,
+      offset: [-150, 0],
+      duration: 400,
+    });
+  }, [selectedStop]);
 
   return (
     <>
