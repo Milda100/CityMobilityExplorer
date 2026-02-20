@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-export function useTpc(code: string) {
+export function useTpc() {
   return useQuery({
     queryKey: ["tpc"],
     queryFn: async () => {
