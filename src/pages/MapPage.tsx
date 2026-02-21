@@ -31,9 +31,18 @@ function MapPage() {
         /> */}
       </header>
       <main className="flex-1 relative">
-        <Map selectedStop={selectedStop} onSelectedStop={setSelectedStop} lineId={lineId} mapRef={mapRef} />
+        <Map
+          selectedStop={selectedStop}
+          onSelectedStop={setSelectedStop}
+          lineId={lineId}
+          mapRef={mapRef}
+        />
         {selectedStop && (
-          <Sidebar stop={selectedStop} onClose={() => setSelectedStop(null)} onSelectLine={setLineId} />
+          <Sidebar
+            stop={selectedStop}
+            onClose={() => setSelectedStop(null)}
+            onSelectLine={setLineId}
+          />
         )}
       </main>
     </div>

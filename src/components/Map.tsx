@@ -50,7 +50,6 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
   console.log("lineActuals from hook:", lineActuals);
   console.log("tpcGeojson", tpcGeojson);
 
-
   /* ---------------- Vehicles GeoJSON ---------------- */
   const vehiclesGeoJSON = useMemo(() => {
     if (!lineActuals || !lineId) return null;
@@ -192,23 +191,23 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
 
       map.on("click", "tpc-layer", (e) => {
         if (!e.features?.length) return;
+        console.log("Raw feature props:", e.features[0].properties);
 
         const feature = e.features[0];
         if (feature.geometry.type !== "Point") return;
 
         const coords = feature.geometry.coordinates as [number, number];
-        const props = feature.properties as any;;
+        const props = feature.properties as any;
         console.log("Stop clicked:", props);
 
         onSelectedStop({
-          id: props.TimingPointCode,
           coordinates: coords,
-          town: props.TimingPointTown,
-          name: props.TimingPointName,
-          tpc: props.TimingPointCode,
-          stopAreaCode: props.StopAreaCode,
-          tpWheelChairAccessible: props.TimingPointWheelChairAccessible,
-          tpVisualAccessible: props.TimingPointVisualAccessible,
+          town: props.town,
+          name: props.name,
+          tpc: props.tpc,
+          stopAreaCode: props.stopAreaCode,
+          tpWheelChairAccessible: props.tpWheelChairAccessible,
+          tpVisualAccessible: props.tpVisualAccessible,
         });
       });
     });

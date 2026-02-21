@@ -8,13 +8,17 @@ type SidebarProps = {
   onSelectLine: (lineId: string) => void;
 };
 
-export function Sidebar({ stop, onClose, onSelectLine}: SidebarProps) {
+export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
   const isOpen = Boolean(stop);
   const {
     data: departures,
     isLoading,
     error,
-  } = useDepartures(stop?.id ?? null);
+  } = useDepartures(stop?.tpc ?? null);
+
+  console.log("departures:", departures);
+  console.log("stop?.tpc:", stop?.tpc);
+  console.log("Sidebar received stop:", stop);
 
   return (
     <aside
@@ -50,25 +54,25 @@ export function Sidebar({ stop, onClose, onSelectLine}: SidebarProps) {
         )}
 
         {/* Departure list */}
-        {departures?.map((dep) => (
+        {departures?.map((d) => (
           <div
-            key={`${dep.line}-${dep.time}`}
+            key={`${d.id}`}
             className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
             onClick={() => {
-              const lineId = `${dep.operatorCode}_${dep.linePlanningNumber}_${dep.direction}`;
+              const lineId = `${d.operatorCode + "_" + d.linePlanningNumber + "_" + d.direction}`;
               onSelectLine(lineId);
             }}
           >
             <div className="flex items-center gap-3">
               {/* Colored circle for line type */}
               <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full ${iconBgColors[dep.type]}`}
+                className={`flex items-center justify-center w-10 h-10 rounded-full ${iconBgColors[d.type]}`}
               >
-                {transportConfig[dep.type].reactIcon}
+                {transportConfig[d.type].reactIcon}
               </div>
               <div className="flex flex-col">
-                <div className="font-medium text-gray-800">{dep.line}</div>
-                <div className="text-sm text-gray-500">{dep.destination}</div>
+                <div className="font-medium text-gray-800">{d.lineNumber}</div>
+                <div className="text-sm text-gray-500">{d.destination}</div>
                 {/* {dep.status && (
                   <div
                     className={`text-xs font-semibold mt-0.5 ${
@@ -82,7 +86,7 @@ export function Sidebar({ stop, onClose, onSelectLine}: SidebarProps) {
             </div>
 
             <div className="font-semibold text-gray-800 text-sm">
-              {new Date(dep.time).toLocaleTimeString([], {
+              {new Date(d.expectedDeparture).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               })}

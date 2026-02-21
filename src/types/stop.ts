@@ -1,5 +1,4 @@
 export interface Stop {
-  id: string;
   coordinates: [number, number];
   town: string;
   name: string;
