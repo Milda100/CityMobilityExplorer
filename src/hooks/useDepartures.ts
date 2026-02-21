@@ -1,17 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Departure } from "../types/departure";
 
-export function useDepartures(stopId: string | null) {
+export function useDepartures(code: string | null) {
   return useQuery({
-    queryKey: ["departures", stopId],
+    queryKey: ["departures", code],
     queryFn: async () => {
-      if (!stopId) return [];
+      if (!code) return [];
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/departures?stopId=${stopId}`,
+        `${import.meta.env.VITE_API_URL}/api/departures?code=${code}`,
       );
       if (!res.ok) throw new Error("Failed to fetch departures via proxy");
       const data = await res.json();
-      const stopData = data[stopId];
+      const stopData = data[code];
       if (!stopData) return [];
 
       // Flatten all Passes from all timing points
@@ -33,7 +33,7 @@ export function useDepartures(stopId: string | null) {
 
       return departures;
     },
-    enabled: Boolean(stopId),
+    enabled: Boolean(code),
     refetchInterval: 30_000,
   });
 }

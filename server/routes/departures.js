@@ -1,6 +1,7 @@
 import { Router } from "express";
 import fetch from "node-fetch";
 import https from "https";
+import "dotenv/config";
 
 const router = Router();
 
@@ -8,15 +9,15 @@ const httpsAgent = new https.Agent({
   rejectUnauthorized: false, // WARNING: only for development!
 });
 
-router.get("/", async (req, res) => {
-  const stopId = req.query.stopId;
+router.get("/:code/departures", async (req, res) => {
+  const code = req.params.code;
 
-  if (!stopId) {
-    return res.status(400).json({ error: "Missing stopId" });
+  if (!code) {
+    return res.status(400).json({ error: "Missing code from TPC" });
   }
   try {
     const response = await fetch(
-      `${process.env.API_URL}/stopareacode/${stopId}/departures`,
+      `${process.env.API_URL}/tpc/${code}/departures`,
       {
         agent: httpsAgent,
         headers: { "User-Agent": "CityMobilityExplorer/1.0" },

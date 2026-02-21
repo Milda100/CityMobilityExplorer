@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import fs from "fs";
 import https from "https";
 import pLimit from "p-limit";
-import 'dotenv/config';
+import "dotenv/config";
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,

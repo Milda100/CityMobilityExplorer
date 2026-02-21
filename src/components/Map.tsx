@@ -50,12 +50,6 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
   console.log("lineActuals from hook:", lineActuals);
   console.log("tpcGeojson", tpcGeojson);
 
-  /* ---------------- Stops GeoJSON ---------------- */
-  // const allStopsGeoJSON =
-  //   useMemo<GeoJSON.FeatureCollection<GeoJSON.Point> | null>(() => {
-  //     if (!stopAreas) return null;
-  //     return toGeoJSON(stopAreas);
-  //   }, [stopAreas]);
 
   /* ---------------- Vehicles GeoJSON ---------------- */
   const vehiclesGeoJSON = useMemo(() => {

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import fetch from "node-fetch";
 import https from "https";
+import "dotenv/config";
 
 const router = Router();
 const httpsAgent = new https.Agent({
