@@ -151,6 +151,9 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
       map.addSource("tpc-source", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
+        cluster: true,
+        clusterMaxZoom: 13,
+        clusterRadius: 50,
       });
 
       const stopImg = await loadImageSafe("/icons/stop.svg");
@@ -163,6 +166,7 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
         id: "tpc-layer",
         type: "symbol",
         source: "tpc-source",
+        filter: ["!", ["has", "point_count"]],
         layout: {
           "icon-image": "stop",
           "icon-size": [
@@ -176,8 +180,47 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
             16,
             0.5,
           ],
-          "icon-allow-overlap": true,
+          "icon-allow-overlap": true, //not sure
           "icon-anchor": "bottom",
+        },
+      });
+
+      /*------ Clustering shape Layer ----*/
+      map.addLayer({
+        id: "tpc-clusters",
+        type: "circle",
+        source: "tpc-source",
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": "#2563eb",
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            18,
+            50,
+            24,
+            100,
+            30,
+            500,
+            38,
+          ],
+          "circle-opacity": 0.85,
+        },
+      });
+
+      /* ---- Clustering count layer ---- */
+      map.addLayer({
+        id: "tpc-cluster-count",
+        type: "symbol",
+        source: "tpc-source",
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": "{point_count_abbreviated}",
+          "text-size": 12,
+          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+        },
+        paint: {
+          "text-color": "#ffffff",
         },
       });
 
@@ -186,6 +229,13 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
         map.getCanvas().style.cursor = "pointer";
       });
       map.on("mouseleave", "tpc-layer", () => {
+        map.getCanvas().style.cursor = "";
+      });
+
+      map.on("mouseenter", "tpc-clusters", () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", "tpc-clusters", () => {
         map.getCanvas().style.cursor = "";
       });
 
@@ -209,6 +259,27 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
           tpWheelChairAccessible: props.tpWheelChairAccessible,
           tpVisualAccessible: props.tpVisualAccessible,
         });
+      });
+    });
+
+    map.on("click", "tpc-clusters", async (e) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ["tpc-clusters"],
+      });
+
+      if (!features.length) return;
+
+      const clusterId = features[0].properties?.cluster_id as number;
+
+      const source = map.getSource("tpc-source") as maplibregl.GeoJSONSource;
+      if (!source) return;
+
+      const zoom = await source.getClusterExpansionZoom(clusterId);
+
+      map.easeTo({
+        center: (features[0].geometry as any).coordinates,
+        zoom,
+        duration: 400,
       });
     });
 
@@ -244,16 +315,6 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
       map.off("moveend", updateVisibleStops);
     };
   }, [tpcGeojson]);
-
-  //   // Update vehicles layer whenever line actuals change
-  //   useEffect(() => {
-  //   if (!mapReference.current || !vehiclesGeoJSON) return;
-
-  //   const source = mapReference.current.getSource("vehicles-source") as maplibregl.GeoJSONSource | undefined;
-  //   if (!source) return;
-
-  //   source.setData(vehiclesGeoJSON);
-  // }, [vehiclesGeoJSON]);
 
   /* ---------------- Show / hide vehicles ---------------- */
 
