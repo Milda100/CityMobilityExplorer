@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import Map from "../components/Map";
+import Map from "../map/Map";
 import { Sidebar } from "../components/Sidebar";
 import type { Stop } from "../types/stop";
 // import { SearchBar } from "../components/SearchBar";
