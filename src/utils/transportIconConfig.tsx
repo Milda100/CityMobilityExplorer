@@ -1,60 +1,57 @@
-import type { JSX } from "react";
-import { FaTrain, FaBus, FaShip, FaQuestion } from "react-icons/fa";
-import { FaTrainTram } from "react-icons/fa6";
-import { MdSubway } from "react-icons/md";
+import type { ComponentType, SVGProps } from "react";
 import type { TransportType } from "../types/transportType";
+import TrainIcon from "../assets/icons/train.svg?react";
+import BusIcon from "../assets/icons/bus.svg?react";
+import MetroIcon from "../assets/icons/metro.svg?react";
+import TramIcon from "../assets/icons/tram.svg?react";
+import BoatIcon from "../assets/icons/boat.svg?react";
+import UnknownIcon from "../assets/icons/unknown.svg?react";
 
-export const transportConfig: Record<TransportType | "UNKNOWN", {
-  reactIcon: JSX.Element;
-  bgColor: string;
-  mapIcon?: string; // URL or Mapbox sprite name
-}> = {
+type SvgIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+export const transportConfig: Record<
+  TransportType | "UNKNOWN",
+  {
+    icon: SvgIcon; // React component for sidebar
+    mapIcon: string; // Public URL for MapLibre
+    color: string;
+    bgColor: string;
+  }
+> = {
   TRAIN: {
-    reactIcon: <FaTrain className="text-blue-600" />,
-    bgColor: "bg-blue-100",
+    icon: TrainIcon,
     mapIcon: "/icons/train.svg",
+    color: "text-blue-600",
+    bgColor: "bg-blue-100",
   },
   BUS: {
-    reactIcon: <FaBus className="text-yellow-500" />,
-    bgColor: "bg-yellow-100",
+    icon: BusIcon,
     mapIcon: "/icons/bus.svg",
+    color: "text-yellow-500",
+    bgColor: "bg-yellow-100",
   },
   METRO: {
-    reactIcon: <MdSubway className="text-purple-600" />,
-    bgColor: "bg-purple-100",
+    icon: MetroIcon,
     mapIcon: "/icons/metro.svg",
+    color: "text-purple-600",
+    bgColor: "bg-purple-100",
   },
   TRAM: {
-    reactIcon: <FaTrainTram className="text-red-500" />,
-    bgColor: "bg-red-100",
+    icon: TramIcon,
     mapIcon: "/icons/tram.svg",
+    color: "text-red-500",
+    bgColor: "bg-red-100",
   },
   BOAT: {
-    reactIcon: <FaShip className="text-teal-600" />,
-    bgColor: "bg-teal-100",
+    icon: BoatIcon,
     mapIcon: "/icons/boat.svg",
+    color: "text-teal-600",
+    bgColor: "bg-teal-100",
   },
   UNKNOWN: {
-    reactIcon: <FaQuestion className="text-gray-400" />,
-    bgColor: "bg-gray-100",
+    icon: UnknownIcon,
     mapIcon: "/icons/unknown.svg",
+    color: "text-gray-400",
+    bgColor: "bg-gray-100",
   },
 };
-
-export const iconBgColors: Record<TransportType | "UNKNOWN", string> = {
-  TRAIN: "bg-blue-100",
-  BUS: "bg-yellow-100",
-  METRO: "bg-purple-100",
-  TRAM: "bg-red-100",
-  BOAT: "bg-teal-100",
-  UNKNOWN: "bg-gray-100",
-};
-
-// export const tailwindToHex: Record<string, string> = {
-//   "bg-blue-100": "#dbeafe",
-//   "bg-yellow-100": "#fef9c3",
-//   "bg-purple-100": "#ede9fe",
-//   "bg-red-100": "#fee2e2",
-//   "bg-teal-100": "#ccfbf1",
-//   "bg-gray-100": "#f3f4f6",
-// };

@@ -1,6 +1,6 @@
 import { useDepartures } from "../hooks/useDepartures";
 import type { Stop } from "../types/stop";
-import { transportConfig, iconBgColors } from "../utils/transportIconConfig";
+import { transportConfig } from "../utils/transportIconConfig";
 
 type SidebarProps = {
   stop: Stop | null;
@@ -54,26 +54,31 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
         )}
 
         {/* Departure list */}
-        {departures?.map((d) => (
-          <div
-            key={`${d.id}`}
-            className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
-            onClick={() => {
-              const lineId = `${d.operatorCode + "_" + d.linePlanningNumber + "_" + d.direction}`;
-              onSelectLine(lineId);
-            }}
-          >
-            <div className="flex items-center gap-3">
-              {/* Colored circle for line type */}
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full ${iconBgColors[d.type]}`}
-              >
-                {transportConfig[d.type].reactIcon}
-              </div>
-              <div className="flex flex-col">
-                <div className="font-medium text-gray-800">{d.lineNumber}</div>
-                <div className="text-sm text-gray-500">{d.destination}</div>
-                {/* {dep.status && (
+        {departures?.map((d) => {
+          const { icon: Icon, bgColor, color } = transportConfig[d.type];
+          return (
+            <div
+              key={`${d.id}`}
+              className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+              onClick={() => {
+                const lineId = `${d.operatorCode + "_" + d.linePlanningNumber + "_" + d.direction}`;
+                onSelectLine(lineId);
+              }}
+            >
+              <div className="flex items-center gap-3">
+                {/* Colored circle for line type */}
+
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full ${bgColor}`}
+                >
+                  <Icon className={`w-6 h-6 ${color}`} />
+                </div>
+                <div className="flex flex-col">
+                  <div className="font-medium text-gray-800">
+                    {d.lineNumber}
+                  </div>
+                  <div className="text-sm text-gray-500">{d.destination}</div>
+                  {/* {dep.status && (
                   <div
                     className={`text-xs font-semibold mt-0.5 ${
                       dep.status === "delayed" ? "text-red-500" : "text-green-500"
@@ -82,17 +87,18 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
                     {dep.status}
                   </div>
                 )} */}
+                </div>
+              </div>
+
+              <div className="font-semibold text-gray-800 text-sm">
+                {new Date(d.expectedDeparture).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </div>
             </div>
-
-            <div className="font-semibold text-gray-800 text-sm">
-              {new Date(d.expectedDeparture).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </aside>
   );
