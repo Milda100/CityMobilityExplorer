@@ -66,7 +66,7 @@ export const setupMapLayers = async ({
     type: "geojson",
     data: { type: "FeatureCollection", features: [] },
     cluster: true,
-    clusterMaxZoom: 13,
+    clusterMaxZoom: 12,
     clusterRadius: 50,
   });
 

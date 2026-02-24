@@ -55,13 +55,14 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
 
         {/* Departure list */}
         {departures?.map((d) => {
-          const { icon: Icon, bgColor, color } = transportConfig[d.type];
+          const { icon: Icon } = transportConfig[d.type];
           return (
             <div
               key={`${d.id}`}
               className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
               onClick={() => {
                 const lineId = `${d.operatorCode + "_" + d.linePlanningNumber + "_" + d.direction}`;
+                console.log("Line clicked:", lineId)
                 onSelectLine(lineId);
               }}
             >
@@ -69,9 +70,9 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
                 {/* Colored circle for line type */}
 
                 <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-full ${bgColor}`}
+                  className={`flex items-center justify-center`}
                 >
-                  <Icon className={`w-6 h-6 ${color}`} />
+                  <Icon className={`w-10 h-10`} />
                 </div>
                 <div className="flex flex-col">
                   <div className="font-medium text-gray-800">

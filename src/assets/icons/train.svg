@@ -1,9 +1,9 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
-<svg fill="#000000" width="64px" height="64px" viewBox="-25.6 -25.6 307.20 307.20" id="Flat" xmlns="http://www.w3.org/2000/svg">
+<svg width="64px" height="64px" viewBox="-1.6 -1.6 19.20 19.20" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="0.00016">
 <g id="SVGRepo_bgCarrier" stroke-width="0">
-<rect x="-25.6" y="-25.6" width="307.20" height="307.20" rx="153.6" fill="#ffffff" strokewidth="0"/>
+<rect x="-1.6" y="-1.6" width="19.20" height="19.20" rx="9.6" fill="#ccd2ff" strokewidth="0"/>
 </g>
 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-<g id="SVGRepo_iconCarrier"> <path d="M188,24H68A32.03667,32.03667,0,0,0,36,56V184a32.03667,32.03667,0,0,0,32,32H79.99976L65.59961,235.2002a8.00019,8.00019,0,0,0,12.80078,9.5996L100.00024,216h55.99952l21.59985,28.7998a8.00019,8.00019,0,0,0,12.80078-9.5996L176.00024,216H188a32.03667,32.03667,0,0,0,32-32V56A32.03667,32.03667,0,0,0,188,24ZM84,184a12,12,0,1,1,12-12A12,12,0,0,1,84,184Zm36-64H52V80h68Zm52,64a12,12,0,1,1,12-12A12,12,0,0,1,172,184Zm32-64H136V80h68Z"/> </g>
+<g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M2 3C2 1.34315 3.34315 0 5 0H11C12.6569 0 14 1.34315 14 3V11C14 12.2084 13.2855 13.25 12.2559 13.7253L13.2308 16H11.0549L10.1977 14H5.80224L4.9451 16H2.76917L3.74406 13.7252C2.71449 13.25 2 12.2084 2 11V3ZM4 3H7V7H4V3ZM12 3H9V7H12V3ZM9 10C9 10.5523 8.55228 11 8 11C7.44772 11 7 10.5523 7 10C7 9.44771 7.44772 9 8 9C8.55228 9 9 9.44771 9 10Z" fill="#001eff"/> </g>
 </svg>
