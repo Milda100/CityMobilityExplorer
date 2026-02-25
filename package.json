@@ -1,11 +1,14 @@
 {
   "name": "citymobilityexplorer",
+  "homepage": "https://milda100.github.io/CityMobilityExplorer",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "lint": "eslint .",
     "preview": "vite preview",
     "start:server": "node server/index.js",
