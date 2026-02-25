@@ -88,6 +88,10 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
     vehiclesGeoJSON,
     selectedStop,
     lineId,
+    MapSources: {
+      VEHICLES: "vehicles-source",
+      STOPS: "stops-source",
+    },
   });
 
   /* ---------------- Map initialization ---------------- */

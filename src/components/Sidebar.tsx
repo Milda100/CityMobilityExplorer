@@ -20,6 +20,21 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
   console.log("stop?.tpc:", stop?.tpc);
   console.log("Sidebar received stop:", stop);
 
+  const getTimeLeftLabel = (departure: string | number | Date) => {
+    const now = Date.now();
+    const depTime = new Date(departure).getTime();
+    const diff = depTime - now;
+
+    if (diff <= 0) return "Departed";
+
+    const minutes = Math.floor(diff / 60000);
+
+    if (minutes === 0) return "Now";
+    if (minutes === 1) return "1 min";
+
+    return `${minutes} min`;
+  };
+
   return (
     <aside
       className={`
@@ -58,20 +73,18 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
           const { icon: Icon } = transportConfig[d.type];
           return (
             <div
-              key={`${d.id}`}
+              key={`${d.idOfVehicle}`}
               className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
               onClick={() => {
-                const lineId = `${d.operatorCode + "_" + d.linePlanningNumber + "_" + d.direction}`;
-                console.log("Line clicked:", lineId)
+                const lineId = d.lineId;
+                console.log("Line clicked:", lineId);
                 onSelectLine(lineId);
               }}
             >
               <div className="flex items-center gap-3">
                 {/* Colored circle for line type */}
 
-                <div
-                  className={`flex items-center justify-center`}
-                >
+                <div className={`flex items-center justify-center`}>
                   <Icon className={`w-10 h-10`} />
                 </div>
                 <div className="flex flex-col">
@@ -92,10 +105,7 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
               </div>
 
               <div className="font-semibold text-gray-800 text-sm">
-                {new Date(d.expectedDeparture).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {getTimeLeftLabel(d.expectedDeparture)}
               </div>
             </div>
           );

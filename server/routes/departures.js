@@ -31,7 +31,7 @@ router.get("/:code", async (req, res) => {
     const data = await response.json();
     const departuresData = Object.values(data[code].Passes || {});
     const departures = departuresData.map((d) => ({
-      id:
+      idOfVehicle:
         d.DataOwnerCode +
         "_" +
         d.LocalServiceLevelCode +
@@ -41,6 +41,8 @@ router.get("/:code", async (req, res) => {
         d.JourneyNumber +
         "_" +
         d.FortifyOrderNumber,
+      lineId:
+        d.OperatorCode + "_" + d.LinePlanningNumber + "_" + d.LineDirection,
       lineNumber: d.LinePublicNumber,
       LineName: d.LineName,
       destination: d.DestinationName50,

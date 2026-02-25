@@ -7,6 +7,10 @@ type UseVehicleLayerParams = {
   vehiclesGeoJSON: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
   selectedStop: any | null;
   lineId: string | null;
+  MapSources: {
+    VEHICLES: string;
+    STOPS: string;
+  };
 };
 
 export const useVehicleLayer = ({
@@ -14,6 +18,7 @@ export const useVehicleLayer = ({
   vehiclesGeoJSON,
   selectedStop,
   lineId,
+  MapSources,
 }: UseVehicleLayerParams) => {
   /* ---------------- Show / Hide Vehicles ---------------- */
   useEffect(() => {
@@ -32,15 +37,26 @@ export const useVehicleLayer = ({
   }, [mapRef, selectedStop, lineId]);
 
   /* ---------------- Update Vehicle Data ---------------- */
+
   useEffect(() => {
-    if (!mapRef.current || !vehiclesGeoJSON) return;
-    if (!selectedStop || !lineId) return;
+    const map = mapRef.current;
+    if (!map) return;
 
-    const source = mapRef.current.getSource(
-      "vehicles-source",
+    const source = map.getSource(
+      MapSources.VEHICLES,
     ) as maplibregl.GeoJSONSource;
-
     if (!source) return;
-    source.setData(vehiclesGeoJSON);
+
+    if (!selectedStop || !lineId) {
+      source.setData({
+        type: "FeatureCollection",
+        features: [],
+      });
+      return;
+    }
+
+    if (vehiclesGeoJSON) {
+      source.setData(vehiclesGeoJSON);
+    }
   }, [mapRef, vehiclesGeoJSON, selectedStop, lineId]);
 };

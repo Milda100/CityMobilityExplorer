@@ -33,7 +33,10 @@ function MapPage() {
       <main className="flex-1 relative">
         <Map
           selectedStop={selectedStop}
-          onSelectedStop={setSelectedStop}
+          onSelectedStop={(stop) => {
+            setSelectedStop(stop);
+            setLineId(null);
+          }}
           lineId={lineId}
           mapRef={mapRef}
         />
