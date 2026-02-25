@@ -1,8 +1,8 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import type { Stop } from "../types/stop";
 import { useLinePasstimes } from "../hooks/useLinePasstimes";
-import { transportConfig } from "../utils/transportIconConfig";
+// import { transportConfig } from "../utils/transportIconConfig";
 import { useTpc } from "../hooks/useTpc";
 import { setupMapLayers } from "./setupLayers";
 import { useVehicleLayer } from "./useVehicleLayer";
@@ -42,50 +42,12 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
   const mapReference = mapRef ?? internalMapRef;
 
   const { data: tpcGeojson, isLoading, error } = useTpc();
-  const { data: lineActuals } = useLinePasstimes(lineId);
+  const { data: vehiclesGeoJSON } = useLinePasstimes(lineId);
 
   /* ---------------- Vehicles GeoJSON ---------------- */
-  const vehiclesGeoJSON = useMemo(() => {
-    if (!lineActuals || !lineId) return null;
-
-    const lineData = lineActuals[lineId];
-    if (!lineData?.Actuals) return null;
-
-    const vehiclesArray = Object.values(lineData.Actuals);
-
-    const geojson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
-      type: "FeatureCollection",
-      features: vehiclesArray.map((v: any) => {
-        const transportType =
-          (v.TransportType as keyof typeof transportConfig) ?? "UNKNOWN";
-
-        return {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [v.Longitude, v.Latitude],
-          },
-          properties: {
-            icon: transportType,
-            bearing: v.Bearing ?? 0,
-            line: v.LinePublicNumber,
-            destination: v.DestinationName50,
-          },
-        };
-      }),
-    };
-    return geojson;
-  }, [lineActuals, lineId]);
-
-  useEffect(() => {
-    if (vehiclesGeoJSON) {
-      console.log("Vehicles GeoJSON ready:", vehiclesGeoJSON);
-    }
-  }, [vehiclesGeoJSON]);
-
   useVehicleLayer({
     mapRef: mapReference,
-    vehiclesGeoJSON,
+    vehiclesGeoJSON: vehiclesGeoJSON ?? null,
     selectedStop,
     lineId,
     MapSources: {

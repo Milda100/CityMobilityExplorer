@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 export function useLinePasstimes(lineId: string | null) {
-  return useQuery({
+  return useQuery<GeoJSON.FeatureCollection<GeoJSON.Point> | null>({
     queryKey: ["line-passtimes", lineId],
     queryFn: async () => {
       if (!lineId) return null;
@@ -12,10 +12,10 @@ export function useLinePasstimes(lineId: string | null) {
       if (!res.ok) throw new Error("Failed to fetch line passtimes");
 
       const data = await res.json();
-      console.log("API response:", data);
-      return data;
+      console.log("GeoJSON response:", data);
+      return data as GeoJSON.FeatureCollection<GeoJSON.Point>;
     },
     enabled: Boolean(lineId),
-    refetchInterval: 15_000, // Refetch every 15 seconds
+    refetchInterval: 10_000, // Refetch every 10 seconds
   });
 }

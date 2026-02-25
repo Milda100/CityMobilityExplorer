@@ -4,9 +4,9 @@ import https from "https";
 import "dotenv/config";
 
 const router = Router();
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false, // dev only
-});
+
+// Dev-only HTTPS agent
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 router.get("/", async (req, res) => {
   const { lineId } = req.query;
@@ -18,10 +18,38 @@ router.get("/", async (req, res) => {
       headers: { "User-Agent": "CityMobilityExplorer/1.0" },
     });
 
-    if (!response.ok)
+    if (!response.ok) {
       throw new Error(`OVAPI request failed: ${response.status}`);
+    }
+
     const data = await response.json();
-    res.json(data);
+
+    const lineData = data[lineId];
+    const vehiclesArray = lineData?.Actuals
+      ? Object.values(lineData.Actuals)
+      : [];
+
+    const geojson = {
+      type: "FeatureCollection",
+      features: vehiclesArray.map((v) => {
+        const type = v.TransportType || "UNKNOWN";
+        return {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [v.Longitude, v.Latitude],
+          },
+          properties: {
+            icon: type,
+            bearing: v.Bearing || 0,
+            line: v.LinePublicNumber,
+            destination: v.DestinationName50,
+          },
+        };
+      }),
+    };
+
+    res.json(geojson);
   } catch (err) {
     console.error("Fetch line passtimes error:", err);
     res.status(500).json({ error: "Failed to fetch line passtimes" });
