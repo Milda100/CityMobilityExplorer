@@ -15,8 +15,19 @@ app.get("/health", (_, res) => {
 });
 
 // CORS
-const clientOrigin = process.env.CLIENT_ORIGIN;
-app.use(cors({ origin: clientOrigin }));
+const allowedOrigins = ["http://localhost:5173", "https://milda100.github.io"];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  }),
+);
 
 // Routes
 app.use("/api/stop-areas", stopAreasRouter);
@@ -25,8 +36,8 @@ app.use("/api/departures", departuresRouter);
 app.use("/api/line-passtimes", linePasstimesRouter);
 app.use("/api/lines", linesRouter);
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;;
 app.listen(PORT, () => {
   console.log(`Proxy running on http://localhost:${PORT}`);
-  console.log(`CORS enabled for ${clientOrigin}`);
+  console.log(`CORS enabled for ${allowedOrigins.join(", ")}`);
 });
