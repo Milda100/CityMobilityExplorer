@@ -8,6 +8,7 @@ import BoatIcon from "../assets/icons/boat.svg?react";
 import UnknownIcon from "../assets/icons/unknown.svg?react";
 
 type SvgIcon = ComponentType<SVGProps<SVGSVGElement>>;
+const base = import.meta.env.BASE_URL;
 
 export const transportConfig: Record<
   TransportType | "UNKNOWN",
@@ -20,37 +21,37 @@ export const transportConfig: Record<
 > = {
   TRAIN: {
     icon: TrainIcon,
-    mapIcon: "/icons/train.svg",
+    mapIcon: `${base}/icons/train.svg`,
     color: "text-blue-600",
     bgColor: "bg-blue-100",
   },
   BUS: {
     icon: BusIcon,
-    mapIcon: "/icons/bus.svg",
+    mapIcon: `${base}/icons/bus.svg`,
     color: "text-yellow-500",
     bgColor: "bg-yellow-100",
   },
   METRO: {
     icon: MetroIcon,
-    mapIcon: "/icons/metro.svg",
+    mapIcon: `${base}/icons/metro.svg`,
     color: "text-purple-600",
     bgColor: "bg-purple-100",
   },
   TRAM: {
     icon: TramIcon,
-    mapIcon: "/icons/tram.svg",
+    mapIcon: `${base}/icons/tram.svg`,
     color: "text-red-500",
     bgColor: "bg-red-100",
   },
   BOAT: {
     icon: BoatIcon,
-    mapIcon: "/icons/boat.svg",
+    mapIcon: `${base}/icons/boat.svg`,
     color: "text-teal-600",
     bgColor: "bg-teal-100",
   },
   UNKNOWN: {
     icon: UnknownIcon,
-    mapIcon: "/icons/unknown.svg",
+    mapIcon: `${base}/icons/unknown.svg`,
     color: "text-gray-400",
     bgColor: "bg-gray-100",
   },
