@@ -8,14 +8,20 @@ import linesRouter from "./routes/lines.js";
 import tpcRoute from "./routes/tpc.js";
 
 const app = express();
-dotenv.config();
+
+dotenv.config({
+  path: `.env.${process.env.NODE_ENV || "development"}`,
+});
 
 app.get("/health", (_, res) => {
   res.json({ status: "ok" });
 });
 
 // CORS
-const allowedOrigins = ["http://localhost:5173", "https://milda100.github.io"];
+const allowedOrigins = [
+  process.env.CLIENT_ORIGIN,
+  "http://localhost:5174"
+];
 
 app.use(
   cors({

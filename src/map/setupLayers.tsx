@@ -1,6 +1,8 @@
 import maplibregl from "maplibre-gl";
 import { transportConfig } from "../utils/transportIconConfig";
 
+const base = import.meta.env.BASE_URL;
+
 export const MapSources = {
   VEHICLES: "vehicles-source",
   STOPS: "tpc-source",
@@ -70,7 +72,7 @@ export const setupMapLayers = async ({
     clusterRadius: 50,
   });
 
-  const stopImg = await loadImageSafe("/icons/stop.svg");
+  const stopImg = await loadImageSafe(`${base}/icons/stop.svg`);
   if (stopImg && !map.hasImage("stop")) {
     map.addImage("stop", stopImg, { sdf: false });
     console.log("Loaded stop icon");

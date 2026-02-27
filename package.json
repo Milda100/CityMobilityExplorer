@@ -11,7 +11,7 @@
     "deploy": "gh-pages -d dist",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start:server": "node server/index.js",
+    "start:server": "cross-env NODE_ENV=development node server/index.js",
     "build:tpc": "node server/scripts/buildTPC.js"
   },
   "dependencies": {
@@ -45,6 +45,7 @@
     "@types/react-leaflet": "^2.8.3",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.22",
+    "cross-env": "^10.1.0",
     "eslint": "^9.39.3",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
