@@ -2,11 +2,25 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import type { Stop } from "../types/stop";
 import { useLinePasstimes } from "../hooks/useLinePasstimes";
-// import { transportConfig } from "../utils/transportIconConfig";
+import { transportConfig } from "../utils/transportIconConfig";
 import { useTpc } from "../hooks/useTpc";
-import { setupMapLayers } from "./setupLayers";
+import { MapSources, setupMapLayers } from "./setupLayers";
 import { useVehicleLayer } from "./useVehicleLayer";
 import { useVisibleStops } from "./useVisibleStops";
+
+const base = import.meta.env.BASE_URL;
+
+// Safe image loader helper
+export const loadImageSafe = (src: string) =>
+  new Promise<HTMLImageElement | null>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = (e) => {
+      console.warn("Image failed to load:", src, e);
+      resolve(null);
+    };
+    img.src = src;
+  });
 
 const OSM_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -75,6 +89,30 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
     }
 
     map.on("load", () => {
+      // Preload stop icon asynchronously
+      loadImageSafe(`${base}/icons/stop.svg`).then((stopImg) => {
+        if (stopImg && !map.hasImage("stop")) {
+          map.addImage("stop", stopImg, { sdf: false });
+          console.log("Stop icon loaded");
+          const stopsSource = map.getSource(
+            MapSources.STOPS,
+          ) as maplibregl.GeoJSONSource;
+          stopsSource?.setData(tpcGeojson);
+        }
+      });
+
+      // Preload vehicle icons asynchronously
+      for (const [type, config] of Object.entries(transportConfig)) {
+        if (!config.mapIcon) continue;
+        loadImageSafe(config.mapIcon).then((vehicleImg) => {
+          if (vehicleImg && !map.hasImage(type)) {
+            map.addImage(type, vehicleImg);
+            console.log("Vehicle icon loaded:", type);
+          }
+        });
+      }
+
+      // Setup layers immediately without waiting for images
       setupMapLayers({ map, onSelectedStop });
     });
 

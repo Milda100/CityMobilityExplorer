@@ -1,7 +1,4 @@
 import maplibregl from "maplibre-gl";
-import { transportConfig } from "../utils/transportIconConfig";
-
-const base = import.meta.env.BASE_URL;
 
 export const MapSources = {
   VEHICLES: "vehicles-source",
@@ -20,18 +17,6 @@ type SetupLayersParams = {
   onSelectedStop: (stop: any) => void;
 };
 
-// Safe image loader helper
-const loadImageSafe = (src: string) =>
-  new Promise<HTMLImageElement | null>((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = (e) => {
-      console.warn("Image failed to load:", src, e);
-      resolve(null);
-    };
-    img.src = src;
-  });
-
 export const setupMapLayers = async ({
   map,
   onSelectedStop,
@@ -41,16 +26,6 @@ export const setupMapLayers = async ({
     type: "geojson",
     data: { type: "FeatureCollection", features: [] },
   });
-
-  for (const [type, config] of Object.entries(transportConfig)) {
-    if (!config.mapIcon) continue;
-
-    const vehicleImg = await loadImageSafe(config.mapIcon!);
-    if (vehicleImg && !map.hasImage(type)) {
-      map.addImage(type, vehicleImg);
-      console.log("Loaded vehicle icon:", type);
-    }
-  }
 
   map.addLayer({
     id: MapLayers.VEHICLES,
@@ -71,12 +46,6 @@ export const setupMapLayers = async ({
     clusterMaxZoom: 12,
     clusterRadius: 50,
   });
-
-  const stopImg = await loadImageSafe(`${base}/icons/stop.svg`);
-  if (stopImg && !map.hasImage("stop")) {
-    map.addImage("stop", stopImg, { sdf: false });
-    console.log("Loaded stop icon");
-  }
 
   map.addLayer({
     id: MapLayers.STOPS,
