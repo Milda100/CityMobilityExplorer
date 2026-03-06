@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import stopAreasRouter from "./routes/stopAreas.js";
 import departuresRouter from "./routes/departures.js";
-import linePasstimesRouter from "./routes/linePasstimes.js";
+import lineActualsRouter from "./routes/lineActuals.js";
 import linesRouter from "./routes/lines.js";
 import tpcRoute from "./routes/tpc.js";
 
@@ -39,7 +39,7 @@ app.use(
 app.use("/api/stop-areas", stopAreasRouter);
 app.use("/api/tpc", tpcRoute);
 app.use("/api/departures", departuresRouter);
-app.use("/api/line-passtimes", linePasstimesRouter);
+app.use("/api/line-actuals", lineActualsRouter);
 app.use("/api/lines", linesRouter);
 
 const PORT = process.env.PORT || 3000;;

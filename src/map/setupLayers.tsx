@@ -44,7 +44,7 @@ export const setupMapLayers = async ({
     data: { type: "FeatureCollection", features: [] },
     cluster: true,
     clusterMaxZoom: 12,
-    clusterRadius: 50,
+    clusterRadius: 40,
   });
 
   map.addLayer({
@@ -65,7 +65,7 @@ export const setupMapLayers = async ({
         16,
         0.32,
       ],
-      "icon-allow-overlap": true, //not sure
+      "icon-allow-overlap": false, //not sure
       "icon-anchor": "bottom",
     },
   });

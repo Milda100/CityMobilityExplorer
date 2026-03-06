@@ -8,6 +8,23 @@ type SidebarProps = {
   onSelectLine: (lineId: string) => void;
 };
 
+const statusLabel = (status: string) => {
+  switch (status) {
+    case "PLANNED":
+      return { label: "Scheduled", color: "text-blue-500" };
+    case "DRIVING":
+      return { label: "On time", color: "text-green-500" };
+    case "ARRIVED":
+      return { label: "Arrived", color: "text-gray-500" };
+    case "PASSED":
+      return { label: "Departed", color: "text-gray-400" };
+    case "CANCEL":
+      return { label: "Cancelled", color: "text-red-500" };
+    default:
+      return { label: "Unknown", color: "text-gray-400" };
+  }
+};
+
 export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
   const isOpen = Boolean(stop);
   const {
@@ -15,10 +32,6 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
     isLoading,
     error,
   } = useDepartures(stop?.tpc ?? null);
-
-  console.log("departures:", departures);
-  console.log("stop?.tpc:", stop?.tpc);
-  console.log("Sidebar received stop:", stop);
 
   const getTimeLeftLabel = (departure: string | number | Date) => {
     const now = Date.now();
@@ -38,18 +51,18 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
   return (
     <aside
       className={`
-        fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-xl z-20
+        fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-xl z-20 rounded-t-lg
         flex flex-col
         transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "translate-x-full"}
       `}
     >
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 h-16 flex items-center justify-between px-4 shadow-lg bg-gradient-to-r from-[#3276c3] to-[#1f4e91]">
-        <h2 className="text-xl font-semibold text-white">{stop?.name ?? ""}</h2>
+      <div className="sticky top-0 z-10 h-16 flex items-center justify-between px-4 shadow-md bg-blue-300 rounded-t-lg">
+        <h2 className="text-xl font-semibold text-black">{stop?.name ?? ""}</h2>
         <button
           onClick={onClose}
-          className="text-white hover:text-black text-xl"
+          className="text-black hover:text-white text-xl"
           aria-label="Close sidebar"
         >
           ✕
@@ -92,15 +105,12 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
                     {d.lineNumber}
                   </div>
                   <div className="text-sm text-gray-500">{d.destination}</div>
-                  {/* {dep.status && (
-                  <div
-                    className={`text-xs font-semibold mt-0.5 ${
-                      dep.status === "delayed" ? "text-red-500" : "text-green-500"
-                    }`}
-                  >
-                    {dep.status}
-                  </div>
-                )} */}
+                  {d.status && (
+                    <div
+                      className={`text-xs font-semibold mt-0.5 ${statusLabel(d.status).color}`}
+                    >
+                      {statusLabel(d.status).label}
+                    </div>                  )}
                 </div>
               </div>
 

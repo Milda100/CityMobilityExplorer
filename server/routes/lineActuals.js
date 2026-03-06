@@ -51,8 +51,8 @@ router.get("/", async (req, res) => {
 
     res.json(geojson);
   } catch (err) {
-    console.error("Fetch line passtimes error:", err);
-    res.status(500).json({ error: "Failed to fetch line passtimes" });
+    console.error("Fetch line actuals error:", err);
+    res.status(500).json({ error: "Failed to fetch line actuals" });
   }
 });
 
