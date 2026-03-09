@@ -2,11 +2,13 @@ import maplibregl from "maplibre-gl";
 
 export const MapSources = {
   VEHICLES: "vehicles-source",
+  ROUTE: "route-source",
   STOPS: "tpc-source",
 };
 
 export const MapLayers = {
   VEHICLES: "vehicles-layer",
+  ROUTE: "route-layer",
   STOPS: "tpc-layer",
   CLUSTERS: "tpc-clusters",
   CLUSTER_COUNT: "tpc-cluster-count",
@@ -35,6 +37,26 @@ export const setupMapLayers = async ({
       "icon-image": ["get", "icon"],
       "icon-size": 0.4,
       "icon-allow-overlap": true,
+    },
+  });
+
+  /* ---- ROUTES ---- */
+  map.addSource(MapSources.ROUTE, {
+    type: "geojson",
+    data: { type: "FeatureCollection", features: [] },
+  });
+
+  map.addLayer({
+    id: MapLayers.ROUTE,
+    type: "line",
+    source: MapSources.ROUTE,
+    layout: {
+      "line-join": "round",
+      "line-cap": "round",
+    },
+    paint: {
+      "line-color": "#2563eb",
+      "line-width": 4,
     },
   });
 

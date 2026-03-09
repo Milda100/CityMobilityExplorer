@@ -4,18 +4,19 @@ import { MapLayers } from "./setupLayers";
 
 type UseVehicleLayerParams = {
   mapRef: React.RefObject<maplibregl.Map | null>;
-  vehiclesGeoJSON: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
+  lineGeoJSON: GeoJSON.FeatureCollection | null;
   selectedStop: any | null;
   lineId: string | null;
   MapSources: {
     VEHICLES: string;
+    ROUTE: string;
     STOPS: string;
   };
 };
 
 export const useVehicleLayer = ({
   mapRef,
-  vehiclesGeoJSON,
+  lineGeoJSON,
   selectedStop,
   lineId,
   MapSources,
@@ -42,21 +43,27 @@ export const useVehicleLayer = ({
     const map = mapRef.current;
     if (!map) return;
 
-    const source = map.getSource(
-      MapSources.VEHICLES,
-    ) as maplibregl.GeoJSONSource;
-    if (!source) return;
+    const vehicleSource = map.getSource(MapSources.VEHICLES) as maplibregl.GeoJSONSource;
+    const routeSource = map.getSource(MapSources.ROUTE) as maplibregl.GeoJSONSource;
+    if (!vehicleSource || !routeSource) return;
 
-    if (!selectedStop || !lineId) {
-      source.setData({
-        type: "FeatureCollection",
-        features: [],
-      });
+    if (!selectedStop || !lineId || !lineGeoJSON) {
+      vehicleSource.setData({ type: "FeatureCollection", features: []});
+      routeSource.setData({ type: "FeatureCollection", features: [] });
       return;
     }
 
-    if (vehiclesGeoJSON) {
-      source.setData(vehiclesGeoJSON);
-    }
-  }, [mapRef, vehiclesGeoJSON, selectedStop, lineId]);
+    const vehiclesFeatures = lineGeoJSON.features.filter(f => f.geometry.type === "Point");
+    const routeFeatures = lineGeoJSON.features.filter(f => f.geometry.type === "LineString");
+
+    vehicleSource.setData({
+      type: "FeatureCollection",
+      features: vehiclesFeatures,
+    });
+
+    routeSource.setData({
+      type: "FeatureCollection",
+      features: routeFeatures,
+    });    
+  }, [mapRef, lineGeoJSON, selectedStop, lineId]);
 };

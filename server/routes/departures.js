@@ -31,7 +31,7 @@ router.get("/:code", async (req, res) => {
     const data = await response.json();
     const departuresData = Object.values(data[code].Passes || {});
     const departures = departuresData.map((d) => ({
-      idOfVehicle:
+      vehicleId:
         d.DataOwnerCode +
         "_" +
         d.LocalServiceLevelCode +
@@ -44,7 +44,7 @@ router.get("/:code", async (req, res) => {
       lineId:
         d.OperatorCode + "_" + d.LinePlanningNumber + "_" + d.LineDirection,
       lineNumber: d.LinePublicNumber,
-      LineName: d.LineName,
+      lineName: d.LineName,
       destination: d.DestinationName50,
       type: d.TransportType ?? "UNKNOWN",
       expectedDeparture: d.ExpectedDepartureTime,

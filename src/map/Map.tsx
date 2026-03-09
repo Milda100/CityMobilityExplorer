@@ -56,16 +56,17 @@ function Map({ selectedStop, onSelectedStop, lineId, mapRef }: MapProps) {
   const mapReference = mapRef ?? internalMapRef;
 
   const { data: tpcGeojson, isLoading, error } = useTpc();
-  const { data: vehiclesGeoJSON } = useLineActuals(lineId);
+  const { data: lineGeoJSON } = useLineActuals(lineId);
 
   /* ---------------- Vehicles GeoJSON ---------------- */
   useVehicleLayer({
     mapRef: mapReference,
-    vehiclesGeoJSON: vehiclesGeoJSON ?? null,
+    lineGeoJSON: lineGeoJSON ?? null,
     selectedStop,
     lineId,
     MapSources: {
       VEHICLES: "vehicles-source",
+      ROUTE: "route-source",
       STOPS: "stops-source",
     },
   });

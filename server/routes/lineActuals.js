@@ -23,13 +23,24 @@ router.get("/", async (req, res) => {
     }
 
     const data = await response.json();
-
     const lineData = data[lineId];
+
+    if (!lineData) return res.status(404).json({ error: "Line not found" });
+
+    //------ Route from Network --------
+    const network = lineData.Network;
+    let routeCoordinates = [];
+    if (network) {
+      const stops = network[Object.keys(network)[0]];
+
+      routeCoordinates = Object.values(stops).map((s) => [s.Longitude, s.Latitude]);
+    }
+    //-------Vehicle from Actuals--------//
     const vehiclesArray = lineData?.Actuals
       ? Object.values(lineData.Actuals)
       : [];
 
-    const geojson = {
+    const vehiclesGeoJSON = {
       type: "FeatureCollection",
       features: vehiclesArray.map((v) => {
         const type = v.TransportType || "UNKNOWN";
@@ -40,8 +51,18 @@ router.get("/", async (req, res) => {
             coordinates: [v.Longitude, v.Latitude],
           },
           properties: {
+            vehicleId:
+              v.DataOwnerCode +
+              "_" +
+              v.LocalServiceLevelCode +
+              "_" +
+              v.LinePlanningNumber +
+              "_" +
+              v.JourneyNumber +
+              "_" +
+              v.FortifyOrderNumber,
             icon: type,
-            bearing: v.Bearing || 0,
+            // bearing: v.Bearing || 0,
             line: v.LinePublicNumber,
             destination: v.DestinationName50,
           },
@@ -49,10 +70,29 @@ router.get("/", async (req, res) => {
       }),
     };
 
-    res.json(geojson);
+    //------- Combined GeoJSON-------//
+    const lineGeoJSON = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: routeCoordinates,
+          },
+          properties: {
+            type: "route",
+            line: lineData.Line.LinePublicNumber,
+            destination: lineData.Line.DestinationName50,
+          },
+        },
+        ...vehiclesGeoJSON.features,
+      ],
+    };
+    res.json(lineGeoJSON);
   } catch (err) {
-    console.error("Fetch line actuals error:", err);
-    res.status(500).json({ error: "Failed to fetch line actuals" });
+    console.error("Fetch line data error:", err.message, err.stack);
+    res.status(500).json({ error: err.message });
   }
 });
 

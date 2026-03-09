@@ -9,7 +9,7 @@ function MapPage() {
   const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
   const [lineId, setLineId] = useState<string | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-
+  
   return (
     <div className="h-screen w-screen flex flex-col bg-slate-900 overflow-hidden">
       <header className="h-16 shadow-lg z-10 bg-gradient-to-r from-[#3276c3] to-[#1f4e91] flex items-center px-4">
@@ -40,13 +40,11 @@ function MapPage() {
           lineId={lineId}
           mapRef={mapRef}
         />
-        {selectedStop && (
           <Sidebar
             stop={selectedStop}
             onClose={() => setSelectedStop(null)}
             onSelectLine={setLineId}
           />
-        )}
       </main>
     </div>
   );

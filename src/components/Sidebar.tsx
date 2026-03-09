@@ -33,6 +33,8 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
     error,
   } = useDepartures(stop?.tpc ?? null);
 
+  console.log("Departures", departures);
+
   const getTimeLeftLabel = (departure: string | number | Date) => {
     const now = Date.now();
     const depTime = new Date(departure).getTime();
@@ -51,18 +53,18 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
   return (
     <aside
       className={`
-        fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-xl z-20 rounded-t-lg
-        flex flex-col
+        fixed bottom-0 right-0 w-full sm:w-96 h-1/2 sm:h-full
+        bg-white shadow-xl z-20 rounded-t-lg flex flex-col
         transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "translate-x-full"}
+        ${isOpen ? "translate-y-0" : "translate-y-full"}
       `}
     >
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 h-16 flex items-center justify-between px-4 shadow-md bg-blue-300 rounded-t-lg">
-        <h2 className="text-xl font-semibold text-black">{stop?.name ?? ""}</h2>
+      <div className="sticky top-0 z-10 h-16 flex items-center justify-between px-4 shadow-md bg-gradient-to-r from-[#3276c3] to-[#1f4e91] rounded-t-lg">
+        <h2 className="text-xl font-semibold text-white">{stop?.name ?? ""}</h2>
         <button
           onClick={onClose}
-          className="text-black hover:text-white text-xl"
+          className="text-white hover:text-black text-xl"
           aria-label="Close sidebar"
         >
           ✕
@@ -86,7 +88,7 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
           const { icon: Icon } = transportConfig[d.type];
           return (
             <div
-              key={`${d.idOfVehicle}`}
+              key={`${d.vehicleId}`}
               className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
               onClick={() => {
                 const lineId = d.lineId;
@@ -95,8 +97,6 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
               }}
             >
               <div className="flex items-center gap-3">
-                {/* Colored circle for line type */}
-
                 <div className={`flex items-center justify-center`}>
                   <Icon className={`w-10 h-10`} />
                 </div>
@@ -104,13 +104,14 @@ export function Sidebar({ stop, onClose, onSelectLine }: SidebarProps) {
                   <div className="font-medium text-gray-800">
                     {d.lineNumber}
                   </div>
-                  <div className="text-sm text-gray-500">{d.destination}</div>
+                  <div className="text-sm text-gray-500">to {d.destination}</div>
                   {d.status && (
                     <div
                       className={`text-xs font-semibold mt-0.5 ${statusLabel(d.status).color}`}
                     >
                       {statusLabel(d.status).label}
-                    </div>                  )}
+                    </div>
+                  )}
                 </div>
               </div>
 

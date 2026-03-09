@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import type { TransportType } from "../types/transportType";
 
 export type Departure = {
-  idOfVehicle: string;
+  vehicleId: string;
   lineId: string;
   lineNumber: string;
-  LineName: string;
+  lineName: string;
   destination: string;
   expectedDeparture: string;
   scheduledDeparture: string;
