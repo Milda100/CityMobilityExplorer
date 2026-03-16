@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+#GEO Data
+server/data/nlTransportPaths.geojson
