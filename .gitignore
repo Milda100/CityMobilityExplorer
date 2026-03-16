@@ -25,3 +25,4 @@ dist-ssr
 
 #GEO data
 server/data/nlTransportPaths.geojson
+server/data/nlTransportPaths-clean.geojson
