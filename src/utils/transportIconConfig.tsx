@@ -15,44 +15,30 @@ export const transportConfig: Record<
   {
     icon: SvgIcon; // React component for sidebar
     mapIcon: string; // Public URL for MapLibre
-    color: string;
-    bgColor: string;
   }
 > = {
   TRAIN: {
     icon: TrainIcon,
     mapIcon: `${base}/icons/train.svg`,
-    color: "text-blue-600",
-    bgColor: "bg-blue-100",
   },
   BUS: {
     icon: BusIcon,
     mapIcon: `${base}/icons/bus.svg`,
-    color: "text-yellow-500",
-    bgColor: "bg-yellow-100",
   },
   METRO: {
     icon: MetroIcon,
     mapIcon: `${base}/icons/metro.svg`,
-    color: "text-purple-600",
-    bgColor: "bg-purple-100",
   },
   TRAM: {
     icon: TramIcon,
     mapIcon: `${base}/icons/tram.svg`,
-    color: "text-red-500",
-    bgColor: "bg-red-100",
   },
   BOAT: {
     icon: BoatIcon,
     mapIcon: `${base}/icons/boat.svg`,
-    color: "text-teal-600",
-    bgColor: "bg-teal-100",
   },
   UNKNOWN: {
     icon: UnknownIcon,
     mapIcon: `${base}/icons/unknown.svg`,
-    color: "text-gray-400",
-    bgColor: "bg-gray-100",
   },
 };

@@ -37,7 +37,7 @@ export const useVehicleLayer = ({
     );
   }, [mapRef, selectedStop, lineId]);
 
-  /* ---------------- Update Vehicle Data ---------------- */
+  /* ---------------- Update Vehicle and Route Data ---------------- */
 
   useEffect(() => {
     const map = mapRef.current;
@@ -55,7 +55,12 @@ export const useVehicleLayer = ({
 
     const vehiclesFeatures = lineGeoJSON.features.filter(f => f.geometry.type === "Point");
     const routeFeatures = lineGeoJSON.features.filter(f => f.geometry.type === "LineString");
-
+    console.log("route features", routeFeatures);
+    console.log(
+      "lineGeoJSON",
+      lineGeoJSON.features.map((f) => f.geometry?.type),
+    );
+    
     vehicleSource.setData({
       type: "FeatureCollection",
       features: vehiclesFeatures,
