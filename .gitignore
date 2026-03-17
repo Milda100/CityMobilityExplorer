@@ -22,7 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-#GEO data
-server/data/nlTransportPaths.geojson
-server/data/nlTransportPaths-clean.geojson
