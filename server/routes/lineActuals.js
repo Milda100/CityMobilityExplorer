@@ -27,6 +27,19 @@ const NL_ROUTE_GEOMETRIES =
   "https://pub-8215ffe9587b4ebda74d9902d00d4ca2.r2.dev/nlTransportPaths.geojson";
 let cachedRouteGeometryData = null;
 
+async function loadGtfsData() {
+  try {
+    const res = await fetch(NL_ROUTE_GEOMETRIES);
+    if (!res.ok) throw new Error(res.statusText);
+    cachedRouteGeometryData = await res.json();
+    console.log("Loaded GTFS transport data into memory");
+  } catch (err) {
+    console.error("Failed to load GTFS data on startup:", err);
+  }
+}
+// call immediately when this module is imported
+loadGtfsData();
+
 const cachedLineStops = {};
 
 router.get("/", async (req, res) => {
@@ -59,15 +72,19 @@ router.get("/", async (req, res) => {
     const routeCoordinates = cachedLineStops[lineId];
 
     //------ GTFS route geometry from dataset --------
+
     if (!cachedRouteGeometryData) {
-      const gtfsResponse = await fetch(NL_ROUTE_GEOMETRIES);
-      if (!gtfsResponse.ok)
-        throw new Error(
-          `Failed to fetch route geometry data: ${gtfsResponse.status}`,
-        );
-      cachedRouteGeometryData = await gtfsResponse.json();
-      console.log("Loaded GTFS transport data into memory");
+      return res.status(503).json({ error: "GTFS data not ready yet" });
     }
+    // if (!cachedRouteGeometryData) {
+    //   const gtfsResponse = await fetch(NL_ROUTE_GEOMETRIES);
+    //   if (!gtfsResponse.ok)
+    //     throw new Error(
+    //       `Failed to fetch route geometry data: ${gtfsResponse.status}`,
+    //     );
+    //   cachedRouteGeometryData = await gtfsResponse.json();
+    //   console.log("Loaded GTFS transport data into memory");
+    // }
 
     //---------- get GTFS shape(s) for this line --------
     const lineNumber =
